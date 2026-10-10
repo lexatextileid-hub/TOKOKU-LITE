@@ -4,6 +4,10 @@ Versi sederhana TOKOKU untuk toko kelontong: admin mencatat pesanan di POS, slip
 
 Tampilan dan cara kerja mengikuti TOKOKU versi full (`lexatextileid-hub/Retail-kelontong`), ditambah tab **Jual | Antrian** di Penjualan.
 
+## Masuk
+
+Akun awal: **kasir** / PIN **1234** (Pemilik · Kasir). Tambah pengguna lain di Back Office → Pengaturan → Pengguna.
+
 ## Isi
 
 - **Kasir:** Kasir (Jual | Antrian | Riwayat — lihat, edit, hapus, retur), Hutang, Laporan Penjualan

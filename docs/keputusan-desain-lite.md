@@ -35,6 +35,13 @@ Mode Kasir punya **periode sendiri** (dipakai bersama Riwayat, Hutang, Laporan P
 
 **Mode Back Office (pemilik):** Laporan, Produk, Pelanggan, Pengaturan.
 
+## Masuk (login) & pengguna
+
+- Aplikasi dibuka dengan layar **Masuk**: nama pengguna + **PIN** (4–6 angka) dengan papan angka besar untuk tablet. Login diingat per perangkat sampai menekan **Keluar** (di bilah judul).
+- Akun awal: **kasir / 1234** (peran Pemilik · Kasir). PIN bisa diganti di Pengaturan.
+- **Pengaturan → Pengguna** (pemilik): tambah pengguna (nama, nama pengguna unik huruf kecil, PIN + ulangi, peran Pemilik · Kasir atau Admin), ubah, ganti PIN, nonaktifkan / aktifkan. Minimal satu Pemilik aktif; tidak bisa menonaktifkan diri sendiri. Akun nonaktif tidak bisa masuk.
+- Nama pengguna yang masuk tercatat di nota (dicatat oleh / kasir), pembayaran hutang, retur; slip mencetak "Dicatat", struk mencetak "Kasir".
+
 ## Peran akun
 
 - **Kasir di toko ini adalah pemilik.** Lite cukup dua peran:

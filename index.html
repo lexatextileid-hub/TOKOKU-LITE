@@ -1046,6 +1046,17 @@ tfoot td{font-weight:700;border-top:1px solid var(--garis);border-bottom:0;paddi
 .pj__pelanggan select,.pj__pelanggan input{height:42px}
 .pj__nota--baru{background:var(--permukaan-2)}
 .pel-cari{position:relative;display:flex;align-items:center}
+[hidden]{display:none!important}
+.login{position:fixed;inset:0;z-index:70;background:var(--latar);display:flex;align-items:center;justify-content:center;padding:16px;overflow:auto}
+.login__kartu{background:var(--permukaan);border:1px solid var(--garis);border-radius:16px;box-shadow:0 18px 48px rgba(23,32,51,.12);width:100%;max-width:380px;padding:24px;display:flex;flex-direction:column;gap:14px}
+.login__merek{display:flex;align-items:center;gap:10px}
+.login__judul{font-size:20px;margin:4px 0 0}
+.login__pin{font-size:22px;letter-spacing:.4em;text-align:center}
+.login__pad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.login__pad button{height:54px;border:1px solid var(--garis-kuat);border-radius:10px;background:var(--permukaan);font-size:20px;font-weight:600;cursor:pointer;color:var(--teks)}
+.login__pad button:active{background:var(--biru-muda)}
+.login__pad .login__ok{background:var(--biru);border-color:var(--biru);color:#fff;font-size:15px}
+.kepala__pengguna .btn{margin-left:4px}
 .kk-mini{display:flex;gap:6px;flex-wrap:wrap;align-items:stretch}
 .kk-mini__item{display:flex;flex-direction:column;justify-content:center;gap:0;padding:5px 10px;border:1px solid var(--garis);border-radius:var(--radius);background:var(--permukaan);text-align:left;font:inherit;color:var(--teks);min-width:0;line-height:1.25}
 button.kk-mini__item{cursor:pointer}button.kk-mini__item:hover{border-color:var(--biru-garis)}
@@ -1118,6 +1129,7 @@ button.kk-mini__item{cursor:pointer}button.kk-mini__item:hover{border-color:var(
   <nav class="bawah" id="bawah" aria-label="Menu utama"></nav>
 </div>
 <div id="laci"></div>
+<div id="login" class="login" hidden></div>
 <div id="modal"></div>
 <div id="toast" class="toast" hidden></div>
 
@@ -1135,7 +1147,8 @@ const S={produk:[],pelanggan:[],nota:[],bayar:[],retur:[],pengaturan:[],db:null,
 const kLabel=k=>k.label||("Retur dari "+k.notaNo);
 const blankCart=()=>({notaId:null,no:null,pelangganId:"",namaBebas:"",items:[],kredit:null,catatan:"",dibuat:null,dibuatOleh:null,fromAntrian:false});
 const CART={pemilik:blankCart(),admin:blankCart()};
-try{const r=localStorage.getItem("tkl2-role");if(r==="admin"||r==="pemilik")S.role=r;}catch(e){}
+const DEF_AKUN=[{id:"u-kasir",nama:"Kasir",username:"kasir",pin:"1234",peran:"pemilik",aktif:true}];
+S.user=null;S.login={u:"",pin:"",err:""};S.akunEdit=null;let SIMPAN_USER=null;try{SIMPAN_USER=localStorage.getItem("tkl-user");}catch(e){}
 const VIEWS={pos:"Kasir POS",hutang:"Hutang",riwayat:"Riwayat",laporan:"Laporan",produk:"Produk",pelanggan:"Pelanggan",pengaturan:"Pengaturan"};
 const ROLE_VIEWS={admin:["pos"],pemilik:["pos","hutang","lappenj","laporan","produk","pelanggan","pengaturan"]};
 
@@ -1160,6 +1173,12 @@ const now=()=>new Date().toISOString();
 const byNama=(a,b)=>a.nama.localeCompare(b.nama,"id");
 let toastT;function toast(m){const t=$("#toast");t.textContent=m;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,3000);}
 const owner=()=>S.role==="pemilik";
+const PERAN={pemilik:"Pemilik · Kasir",admin:"Admin"};
+function akunList(){const d=S.pengaturan.find(x=>x.id==="toko")||{};return d.akun&&d.akun.length?d.akun:DEF_AKUN;}
+const akunNama=()=>S.user?.nama||"-";
+function pulihkanLogin(){if(S.user){const a=akunList().find(x=>x.id===S.user.id);if(!a||a.aktif===false){keluar("Akun ini dinonaktifkan.");}else{S.user=a;S.role=a.peran;}return;}
+  if(SIMPAN_USER){const a=akunList().find(x=>x.id===SIMPAN_USER&&x.aktif!==false);if(a){S.user=a;S.role=a.peran;}}}
+function keluar(pesan){S.user=null;SIMPAN_USER=null;try{localStorage.removeItem("tkl-user");}catch(e){}S.login={u:"",pin:"",err:pesan||""};S.modal=null;S.laci=false;render();}
 const cart=()=>CART[S.role];
 
 /* ================= data ================= */
@@ -1222,6 +1241,9 @@ function menuHTML(lebar){
 }
 function render(){
   S.dirty=false;
+  if(S.mode!=="loading")pulihkanLogin();
+  const lg=$("#login");if(!S.user){$("#app").hidden=true;lg.hidden=false;lg.innerHTML=vLogin();$("#modal").innerHTML="";return;}
+  $("#app").hidden=false;lg.hidden=true;lg.innerHTML="";
   if(!ROLE_VIEWS[S.role].includes(S.view))S.view="pos";
   $("#app").className=CIUT?"app app--ciut":"app";
   $("#side").innerHTML=menuHTML(false);
@@ -1229,7 +1251,7 @@ function render(){
   $("#kepala").innerHTML=`<button class="kepala__tombol" data-act="ciut" aria-label="Menu"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
    <div class="kepala__judul">${m?ikon(m.ikon):""}<h1>${m?m.judul:MODES[mode].judul}</h1>${sub?`<span class="kepala__pemisah" aria-hidden="true">/</span><span class="kepala__sub">${esc(sub)}</span>`:""}</div>
    <div class="kepala__kanan"><span class="kepala__tanggal">${new Date().toLocaleDateString("id-ID",{weekday:"long",day:"numeric",month:"long",year:"numeric"})}</span>
-   <label class="kepala__pengguna" title="Pratinjau: ganti peran"><span class="kepala__avatar" aria-hidden="true">${owner()?"P":"A"}</span><span class="kepala__akun">[${owner()?"Pemilik":"Admin"}]</span><select class="kepala__peran" data-peran="1" aria-label="Peran (pratinjau)"><option value="pemilik" ${owner()?"selected":""}>Pemilik</option><option value="admin" ${owner()?"":"selected"}>Admin</option></select></label></div>`;
+   <div class="kepala__pengguna"><span class="kepala__avatar" aria-hidden="true">${esc((S.user.nama||"?").slice(0,1).toUpperCase())}</span><span class="kepala__akun">${esc(S.user.nama)} <span class="lencana lencana--netral">${owner()?"Pemilik":"Admin"}</span></span><button class="btn sm" data-act="keluar">Keluar</button></div></div>`;
   const menu=MODES[mode].menu.filter(x=>owner()||!x.owner);
   $("#bawah").innerHTML=menu.slice(0,4).map(x=>`<a href="#" class="bawah__item ${S.view===x.v?"active":""}" data-act="view" data-v="${x.v}">${ikon(x.ikon)}<span>${x.judul}</span></a>`).join("")+(owner()?`<button class="bawah__item" data-act="laci">${ikon("lainnya")}<span>Lainnya</span></button>`:"");
   $("#laci").innerHTML=S.laci?`<div class="laci-latar" data-act="tutuplaci" data-self="1"><aside class="laci" aria-label="Semua menu">${menuHTML(true)}</aside></div>`:"";
@@ -1453,13 +1475,13 @@ function slipText(n){
   n.items.forEach(i=>{wrap(i.nama,30).forEach(x=>t.push(x));t.push(L("  "+fq(i.qty)+" "+i.sat,"___  ____"));});
   if(n.kredit)t.push(HR,"Tukar retur dari "+n.kredit.notaNo);
   if(n.catatan)t.push(HR,...wrap("Catatan: "+n.catatan));
-  t.push(HR,"Admin    : "+(n.dibuatOleh||"Admin"),"Disiapkan: ____________");
+  t.push(HR,"Dicatat  : "+(n.dibuatOleh||"-"),"Disiapkan: ____________");
   return t.join("\n");
 }
 function strukText(n,salinan){
   const st=setting();const r=v=>rn(v);const b=n.bayar||{};
   const t=[...head(),HR];if(salinan)t.push(C("*** SALINAN ***"));
-  t.push(L(n.no,tglj(n.dibayarAt||n.dibuat)),"Pelanggan: "+pelLabel(n),HR);
+  t.push(L(n.no,tglj(n.dibayarAt||n.dibuat)),"Pelanggan: "+pelLabel(n));if(n.diterimaOleh)t.push("Kasir    : "+n.diterimaOleh);t.push(HR);
   n.items.filter(i=>i.qty>0).forEach(i=>{wrap(i.nama,30).forEach(x=>t.push(x));t.push(L("  "+fq(i.qty)+" "+i.sat+" x "+r(i.normal),r(i.qty*i.normal)));if(i.disk)t.push(L("  diskon","-"+r(i.qty*i.disk)));});
   t.push(HR,L("Belanja",r(n.subtotal)));if(n.potongan)t.push(L(n.jenisPotongan||"Potongan","-"+r(n.potongan)));if(n.kredit)t.push(L("Retur "+n.kredit.notaNo,"-"+r(n.kredit.nilai)));
   t.push(L(n.tagihan<0?"KEMBALI":"TOTAL",r(Math.abs(n.tagihan))));
@@ -1531,7 +1553,7 @@ function hutAlok(ns,m){
 async function payHutang(pid,alok,metode,bank,sumber){
   if(!alok.length)return;let no=nextNo("BY",S.bayar);
   for(const a of alok){await patch("nota",a.n.id,{hutangDibayar:(a.n.hutangDibayar||0)+a.x});}
-  await put("bayar",uid(),{no,pelangganId:pid,tanggal:now(),jumlah:alok.reduce((s,a)=>s+a.x,0),metode,bank:bank||"",alokasi:alok.map(a=>({notaId:a.n.id,no:a.n.no,jumlah:a.x})),sumber:sumber||"hutang",oleh:"Pemilik"});
+  await put("bayar",uid(),{no,pelangganId:pid,tanggal:now(),jumlah:alok.reduce((s,a)=>s+a.x,0),metode,bank:bank||"",alokasi:alok.map(a=>({notaId:a.n.id,no:a.n.no,jumlah:a.x})),sumber:sumber||"hutang",oleh:akunNama()});
 }
 function oldestAlok(pid,amount){let left=amount;const out=[];for(const n of notaHutang(pid)){if(left<=0)break;const x=Math.min(left,sisaNota(n));out.push({n,x});left-=x;}return out;}
 function mLama(m){return `<div class="sheet-h"><h2>Hutang lama</h2><button class="x" data-act="closemodal">×</button></div><p class="hint" style="margin:0">Hutang dari sebelum memakai aplikasi, tanpa rincian barang.</p>
@@ -1804,13 +1826,22 @@ function vPelDetail(){
 }
 
 /* ================= Pengaturan ================= */
+function vAkun(){const list=akunList();const e=S.akunEdit;
+  return `<section class="panel"><div class="ph"><div><h2>Pengguna</h2><p class="hint">Masuk dengan nama pengguna dan PIN. Pemilik = kasir: semua menu dan menerima bayar. Admin: hanya mencatat pesanan dan melihat Antrian.</p></div>${e?"":`<button class="btn primary" data-act="akunbaru">+ Pengguna</button>`}</div>
+  ${e?`<div class="kotak tumpuk"><h3>${e.id?"Ubah pengguna":"Pengguna baru"}</h3>
+   <div class="row"><div class="field"><label for="ak-n">Nama</label><input id="ak-n" data-ak="nama" value="${esc(e.nama)}" placeholder="mis. Siti"></div><div class="field"><label for="ak-u">Nama pengguna</label><input id="ak-u" data-ak="username" value="${esc(e.username)}" autocapitalize="none" placeholder="mis. siti"></div>
+   <div class="field"><label for="ak-r">Peran</label><select id="ak-r" data-akr="1"><option value="admin" ${e.peran==="admin"?"selected":""}>Admin (catat pesanan)</option><option value="pemilik" ${e.peran==="pemilik"?"selected":""}>Pemilik · Kasir</option></select></div></div>
+   <div class="row"><div class="field"><label for="ak-p">${e.id?"PIN baru (kosongkan bila tetap)":"PIN (4–6 angka)"}</label><input id="ak-p" data-ak="pin" type="password" inputmode="numeric" maxlength="6" value="${esc(e.pin)}"></div><div class="field"><label for="ak-p2">Ulangi PIN</label><input id="ak-p2" data-ak="pin2" type="password" inputmode="numeric" maxlength="6" value="${esc(e.pin2)}"></div></div>
+   <div class="row" style="justify-content:flex-end"><button class="btn" data-act="akunbatal">Batal</button><button class="btn primary" data-act="akunsimpan">Simpan pengguna</button></div></div>`:""}
+  <div class="tw"><table><thead><tr><th>Nama</th><th>Nama pengguna</th><th>Peran</th><th>Status</th><th></th></tr></thead><tbody>${list.map(a=>`<tr><td><b>${esc(a.nama)}</b>${a.id===S.user?.id?' <span class="lencana">Anda</span>':""}</td><td>${esc(a.username)}</td><td>${PERAN[a.peran]}</td><td>${a.aktif===false?'<span class="chip bad">Nonaktif</span>':'<span class="chip good">Aktif</span>'}</td><td class="n"><button class="btn sm" data-act="akunubah" data-id="${a.id}">Ubah</button> ${a.id===S.user?.id?"":`<button class="btn sm ${a.aktif===false?"":"danger"}" data-act="akunaktif" data-id="${a.id}">${a.aktif===false?"Aktifkan":"Nonaktifkan"}</button>`}</td></tr>`).join("")}</tbody></table></div></section>`;}
+async function simpanAkun(list,pesan){try{await saveSetting({akun:list});}catch(e){fail(e);return false;}const me=list.find(a=>a.id===S.user?.id);if(me){S.user=me;S.role=me.peran;}toast(pesan);return true;}
 function vPengaturan(){const st=setting();
   return `${kartuRingkas([{judul:"Toko",nilai:esc(st.nama),catatan:esc(st.telp||"no. telepon belum diisi")},{judul:"Produk",nilai:`${S.produk.filter(p=>p.aktif!==false).length} aktif`,catatan:`${st.kategori.length} kategori · ${st.satuan.length} satuan`},{judul:"Pelanggan terdaftar",nilai:S.pelanggan.length,catatan:`${S.pelanggan.filter(p=>(p.diskon||[]).length).length} punya diskon khusus`},{judul:"Printer kasir",nilai:st.autoSlip?"Slip otomatis":"Slip manual",catatan:"thermal Bluetooth · tablet kasir",warna:st.autoSlip?"utama":""}])}
   <section class="panel"><h2>Toko</h2><div class="row"><div class="field"><label for="st-n">Nama toko</label><input id="st-n" value="${esc(st.nama)}"></div><div class="field"><label for="st-t">No. telepon</label><input id="st-t" value="${esc(st.telp)}"></div></div>
   <div class="field"><label for="st-a">Alamat</label><input id="st-a" value="${esc(st.alamat)}"></div><div class="field"><label for="st-f">Catatan kaki struk</label><input id="st-f" value="${esc(st.footer)}"></div><div><button class="btn primary" data-act="savetoko">Simpan</button></div></section>
   <section class="panel"><h2>Printer</h2><p class="hint" style="margin:0">Printer thermal Bluetooth dipasangkan ke tablet kasir (Chrome Android). Di prototipe ini cetakan tampil sebagai pratinjau.</p>
   <label class="switch"><input type="checkbox" data-autoslip="1" ${st.autoSlip?"checked":""}> Cetak slip pesanan otomatis saat admin menyimpan nota</label></section>
-  <section class="panel"><h2>Akun</h2><div class="tw"><table><thead><tr><th>Akun</th><th>Peran</th><th>Bisa</th></tr></thead><tbody><tr><td><b>Pemilik</b></td><td>Pemilik · kasir</td><td>Semua menu, menerima pembayaran, printer di perangkat ini</td></tr><tr><td><b>Admin</b></td><td>Admin</td><td>Kasir POS: Jual (simpan pesanan) dan Antrian. Tidak bisa menerima bayar, tidak melihat harga beli & laporan</td></tr></tbody></table></div><p class="hint" style="margin:0">Di aplikasi asli tiap akun punya PIN sendiri dan jumlah admin bebas.</p></section>
+  ${vAkun()}
   <section class="panel"><h2>Kategori</h2><div class="pmeta">${st.kategori.map(k=>`<span class="chip blue">${esc(k.nama)} · ${esc(k.kode)}</span>`).join("")}</div><div class="row"><div class="field"><label for="nk-n">Kategori baru</label><input id="nk-n" placeholder="mis. Buah"></div><div class="field" style="flex:0 1 120px"><label for="nk-k">Kode (3 huruf)</label><input id="nk-k" maxlength="3" placeholder="BUH" style="text-transform:uppercase"></div><button class="btn" data-act="addkat">Tambah</button></div></section>
   <section class="panel"><h2>Satuan</h2><div class="pmeta">${st.satuan.map(s=>`<span class="chip">${esc(s)}</span>`).join("")}</div><div class="row"><div class="field"><label for="ns-n">Satuan baru</label><input id="ns-n" placeholder="mis. Toples"></div><button class="btn" data-act="addsatm">Tambah</button></div></section>
   <section class="panel"><h2>Data contoh</h2><p class="hint" style="margin:0">Isi beberapa produk dan pelanggan contoh untuk mencoba alurnya. Ditandai "contoh".</p><div><button class="btn" data-act="contoh">Muat contoh data</button></div></section>`;}
@@ -1835,7 +1866,7 @@ async function simpanNota(){
   if(c.notaId){const ex=S.nota.find(x=>x.id===c.notaId);const data={pelangganId:c.pelangganId,namaBebas:c.namaBebas,pelangganNama:pelLabel(c),items:owner()?c.items.map(i=>({...i})):items};
     try{await patch("nota",c.notaId,data);}catch(e){fail(e);return;}toast(`Nota ${c.no} disimpan.`);}
   else{const id=uid(),no=nextNo("N",S.nota);
-    try{await put("nota",id,{no,jenis:"jual",status:"menunggu",dibuat:now(),dibuatOleh:owner()?"Pemilik":"Admin",pelangganId:c.pelangganId,namaBebas:c.namaBebas,pelangganNama:pelLabel(c),items,kredit:c.kredit||null,catatan:c.catatan||"",slipPrinted:false});}catch(e){fail(e);return;}
+    try{await put("nota",id,{no,jenis:"jual",status:"menunggu",dibuat:now(),dibuatOleh:akunNama(),pelangganId:c.pelangganId,namaBebas:c.namaBebas,pelangganNama:pelLabel(c),items,kredit:c.kredit||null,catatan:c.catatan||"",slipPrinted:false});}catch(e){fail(e);return;}
     toast(owner()?`Nota ${no} masuk antrian.`:`Nota ${no} tersimpan. Slip dicetak di printer kasir.`);}
   CART[S.role]=blankCart();S.cartOpen=false;render();
 }
@@ -1845,7 +1876,7 @@ async function doPay(){
   if(r.belanja>=0&&!r.siap)return;
   reprice(c);
   const id=c.notaId||uid();const no=c.no||(c.editDari?(()=>{const base=c.editDari.no.split("-E")[0];const k=S.nota.filter(x=>(x.no||"").startsWith(base+"-E")).length;return base+"-E"+(k?k+1:"");})():nextNo("N",S.nota));
-  const doc={no,jenis:"jual",status:"dibayar",dibuat:c.dibuat||now(),dibuatOleh:c.dibuatOleh||"Pemilik",dibayarAt:now(),pelangganId:c.pelangganId,namaBebas:c.namaBebas,pelangganNama:pelLabel(c),
+  const doc={no,jenis:"jual",status:"dibayar",dibuat:c.dibuat||now(),dibuatOleh:c.dibuatOleh||akunNama(),diterimaOleh:akunNama(),dibayarAt:now(),pelangganId:c.pelangganId,namaBebas:c.namaBebas,pelangganNama:pelLabel(c),
     items:c.items.map(i=>({...i,pesan:i.pesan===undefined?null:i.pesan})),catatan:c.catatan||"",kredit:c.kredit||null,subtotal:r.sub,hutangDibayar:0,slipPrinted:true,returQty:{}};
   if(r.belanja<0){const met=m.refm||"tunai";doc.potongan=0;doc.tagihan=r.belanja;doc.bayar={tunai:met==="tunai"?-r.refund:0,transfer:met==="transfer"?-r.refund:0,hutang:0,bank:""};doc.refund={metode:met==="hutang"?"potong hutang":met,jumlah:r.refund};}
   else{doc.potongan=r.potongan;doc.jenisPotongan=r.potongan?(r.potongan<=500?"Pembulatan":"Diskon akhir"):"";doc.tagihan=r.sub-r.potongan-r.kred;
@@ -1857,8 +1888,8 @@ async function doPay(){
     if(r.belanja>=0&&r.hbDibayar>0){const all=oldestAlok(c.pelangganId,r.hbDibayar);for(const a of all)await patch("nota",a.n.id,{hutangDibayar:(a.n.hutangDibayar||0)+a.x});
       let leftT=r.hbT;const aT=[],aR=[];all.forEach(a=>{const t=Math.min(leftT,a.x);leftT-=t;if(t)aT.push({no:a.n.no,notaId:a.n.id,jumlah:t});if(a.x-t)aR.push({no:a.n.no,notaId:a.n.id,jumlah:a.x-t});});
       const no1=nextNo("BY",S.bayar);
-      if(aT.length)await put("bayar",uid(),{no:no1,pelangganId:c.pelangganId,tanggal:now(),jumlah:r.hbT,metode:"tunai",bank:"",alokasi:aT,sumber:"pos",oleh:"Pemilik"});
-      if(aR.length)await put("bayar",uid(),{no:aT.length?no1.replace(/(\d+)$/,x=>String(+x+1).padStart(3,"0")):no1,pelangganId:c.pelangganId,tanggal:now(),jumlah:r.hbR,metode:"transfer",bank:(m.bank||"").trim(),alokasi:aR,sumber:"pos",oleh:"Pemilik"});}
+      if(aT.length)await put("bayar",uid(),{no:no1,pelangganId:c.pelangganId,tanggal:now(),jumlah:r.hbT,metode:"tunai",bank:"",alokasi:aT,sumber:"pos",oleh:akunNama()});
+      if(aR.length)await put("bayar",uid(),{no:aT.length?no1.replace(/(\d+)$/,x=>String(+x+1).padStart(3,"0")):no1,pelangganId:c.pelangganId,tanggal:now(),jumlah:r.hbR,metode:"transfer",bank:(m.bank||"").trim(),alokasi:aR,sumber:"pos",oleh:akunNama()});}
     if(r.belanja<0&&m.refm==="hutang"){const amt=Math.min(r.refund,r.sisaH);await payHutang(c.pelangganId,oldestAlok(c.pelangganId,amt),"retur","","pos");}
   }catch(e){fail(e);return;}
   CART[S.role]=blankCart();S.modal=null;S.cartOpen=false;render();
@@ -1874,13 +1905,13 @@ async function doRetur(id){
     let baru=null;
     if(m.pen==="tukar"||m.pen==="ganti"){const nid=uid(),nno=nextNo("N",S.nota);
       const nitems=m.pen==="tukar"?items.map(i=>({pid:i.pid,nama:i.nama,kategori:i.kategori,sat:i.sat,isi:i.isi,qty:i.qty,normal:Math.round(i.unit),disk:0,diskSaran:0,diskManual:true,beli:i.beli,locked:true})):[];
-      baru={id:nid,no:nno};await put("nota",nid,{no:nno,jenis:"jual",status:"menunggu",dibuat:now(),dibuatOleh:"Pemilik",pelangganId:n.pelangganId||"",namaBebas:n.namaBebas||"",pelangganNama:pelLabel(n),items:nitems,kredit:{returId:rid,notaNo:n.no,nilai},catatan:m.pen==="tukar"?"Tukar barang sama (retur "+rno+")":"Ganti barang (retur "+rno+") — tambahkan barang pengganti",slipPrinted:m.pen==="ganti"});
+      baru={id:nid,no:nno};await put("nota",nid,{no:nno,jenis:"jual",status:"menunggu",dibuat:now(),dibuatOleh:akunNama(),pelangganId:n.pelangganId||"",namaBebas:n.namaBebas||"",pelangganNama:pelLabel(n),items:nitems,kredit:{returId:rid,notaNo:n.no,nilai},catatan:m.pen==="tukar"?"Tukar barang sama (retur "+rno+")":"Ganti barang (retur "+rno+") — tambahkan barang pengganti",slipPrinted:m.pen==="ganti"});
       rdoc.notaBaruId=nid;rdoc.notaBaruNo=nno;}
     await put("retur",rid,rdoc);await patch("nota",n.id,{returQty:rq});
     if(m.pen==="hutang"){await payHutang(n.pelangganId,oldestAlok(n.pelangganId,Math.min(nilai,sisaHutang(n.pelangganId))),"retur","","retur");}
     S.modal=null;
     if(baru&&m.pen==="ganti"){toast(`Retur ${rno} tersimpan. Nota ${baru.no} dibuka di kasir untuk barang pengganti.`);
-      CART[S.role]={...blankCart(),notaId:baru.id,no:baru.no,pelangganId:n.pelangganId||"",namaBebas:n.namaBebas||"",kredit:{returId:rid,notaNo:n.no,nilai},dibuat:now(),dibuatOleh:"Pemilik",fromAntrian:false};
+      CART[S.role]={...blankCart(),notaId:baru.id,no:baru.no,pelangganId:n.pelangganId||"",namaBebas:n.namaBebas||"",kredit:{returId:rid,notaNo:n.no,nilai},dibuat:now(),dibuatOleh:akunNama(),fromAntrian:false};
       S.view="pos";S.posTab="jual";render();return;}
     toast(m.pen==="tukar"?`Retur ${rno} tersimpan. Nota ${baru.no} masuk antrian untuk disiapkan.`:m.pen==="uang"?`Retur ${rno}: kembalikan ${rp(nilai)} (${m.met}).`:`Retur ${rno}: hutang dipotong ${rp(nilai)}.`);
     render();
@@ -1929,7 +1960,37 @@ function editNota(id){const n=S.nota.find(x=>x.id===id);if(!n)return;const bl=bl
   CART.pemilik={...blankCart(),pelangganId:n.pelangganId||"",namaBebas:n.namaBebas||"",items:JSON.parse(JSON.stringify(n.items.filter(i=>i.qty>0))).map(i=>({...i,pesan:undefined,ket:undefined})),catatan:n.catatan||"",
     kredit:dibayar?{label:"Sudah dibayar di "+n.no,notaNo:n.no,nilai:dibayar}:null,editDari:{id:n.id,no:n.no,dibayar,bayar:{tunai:Math.max(0,n.bayar?.tunai||0),transfer:Math.max(0,n.bayar?.transfer||0),bank:n.bayar?.bank||""}}};
   S.modal=null;S.view="pos";S.posTab="jual";render();toast("Nota "+n.no+" dibuka untuk diedit.");}
+function vLogin(){const st=setting();const L=S.login;const loading=S.mode==="loading"||(S.mode==="db"&&!S.loadedPengaturan);
+  return `<div class="login__kartu"><div class="login__merek"><div class="merek__logo" aria-hidden="true">TK</div><div><div class="merek__nama">${esc(st.nama)}</div><div class="merek__sub">TOKOKU Lite</div></div></div>
+  <h1 class="login__judul">Masuk</h1>
+  ${loading?`<p class="teks-pudar">Memuat data toko…</p>`:`<form class="tumpuk" data-login="1" autocomplete="off">
+   <label class="isian">Nama pengguna<input class="isian__kontrol" id="lg-u" data-lg="u" value="${esc(L.u)}" autocapitalize="none" autocomplete="username" placeholder="mis. kasir"></label>
+   <label class="isian">PIN<input class="isian__kontrol login__pin" id="lg-p" data-lg="pin" type="password" inputmode="numeric" maxlength="6" value="${esc(L.pin)}" autocomplete="current-password" placeholder="••••"></label>
+   <div class="login__pad" role="group" aria-label="Papan angka">${["1","2","3","4","5","6","7","8","9","hapus","0","ok"].map(k=>k==="hapus"?`<button type="button" data-act="lgpad" data-k="del" aria-label="Hapus angka">⌫</button>`:k==="ok"?`<button type="submit" class="login__ok">Masuk</button>`:`<button type="button" data-act="lgpad" data-k="${k}">${k}</button>`).join("")}</div>
+   ${L.err?`<p class="catatan catatan--bahaya">${esc(L.err)}</p>`:""}
+  </form>`}</div>`;}
+function cobaMasuk(){const L=S.login;const u=L.u.trim().toLowerCase();const a=akunList().find(x=>x.username===u);
+  if(!a||String(a.pin)!==L.pin){L.err="Nama pengguna atau PIN salah.";L.pin="";render();setTimeout(()=>$("#lg-p")?.focus(),0);return;}
+  if(a.aktif===false){L.err="Akun ini dinonaktifkan. Hubungi pemilik.";L.pin="";render();return;}
+  S.user=a;S.role=a.peran;SIMPAN_USER=a.id;try{localStorage.setItem("tkl-user",a.id);}catch(e){}S.login={u:"",pin:"",err:""};S.view="pos";S.posTab="jual";render();autoSlip();toast("Halo, "+a.nama+".");}
 const ACT={
+  akunbaru(){S.akunEdit={id:null,nama:"",username:"",peran:"admin",pin:"",pin2:""};render();setTimeout(()=>$("#ak-n")?.focus(),0);},
+  akunubah(b){const a=akunList().find(x=>x.id===b.dataset.id);S.akunEdit={id:a.id,nama:a.nama,username:a.username,peran:a.peran,pin:"",pin2:""};render();},
+  akunbatal(){S.akunEdit=null;render();},
+  async akunsimpan(){const e=S.akunEdit;const list=JSON.parse(JSON.stringify(akunList()));const nama=e.nama.trim(),u=e.username.trim().toLowerCase();
+    if(!nama){toast("Isi nama.");return;}if(!/^[a-z0-9._-]{3,20}$/.test(u)){toast("Nama pengguna 3–20 huruf kecil/angka, tanpa spasi.");return;}
+    if(list.some(a=>a.username===u&&a.id!==e.id)){toast("Nama pengguna sudah dipakai.");return;}
+    if(!e.id||e.pin){if(!/^\d{4,6}$/.test(e.pin)){toast("PIN harus 4–6 angka.");return;}if(e.pin!==e.pin2){toast("PIN dan ulangi PIN tidak sama.");return;}}
+    if(e.id){const a=list.find(x=>x.id===e.id);const pemilikLain=list.filter(x=>x.peran==="pemilik"&&x.aktif!==false&&x.id!==e.id).length;
+      if(a.peran==="pemilik"&&e.peran!=="pemilik"&&!pemilikLain){toast("Harus ada minimal satu Pemilik aktif.");return;}
+      a.nama=nama;a.username=u;a.peran=e.peran;if(e.pin)a.pin=e.pin;}
+    else list.push({id:"u-"+uid(),nama,username:u,pin:e.pin,peran:e.peran,aktif:true,dibuat:now()});
+    if(await simpanAkun(list,e.id?"Pengguna diperbarui.":"Pengguna "+nama+" ditambahkan.")){S.akunEdit=null;render();}},
+  async akunaktif(b){const list=JSON.parse(JSON.stringify(akunList()));const a=list.find(x=>x.id===b.dataset.id);
+    if(a.aktif!==false&&a.peran==="pemilik"&&!list.some(x=>x.peran==="pemilik"&&x.aktif!==false&&x.id!==a.id)){toast("Harus ada minimal satu Pemilik aktif.");return;}
+    a.aktif=a.aktif===false;if(await simpanAkun(list,a.aktif?a.nama+" diaktifkan.":a.nama+" dinonaktifkan."))render();},
+  lgpad(b){const L=S.login;if(b.dataset.k==="del")L.pin=L.pin.slice(0,-1);else if(L.pin.length<6)L.pin+=b.dataset.k;L.err="";const i=$("#lg-p");if(i)i.value=L.pin;},
+  keluar(){keluar();},
   pilihpel(b){const c=cart();c.pelangganId=b.dataset.id;c.namaBebas="";c.items.forEach(i=>{if(!i.locked&&!i.dariHarga)i.diskManual=false;});reprice(c);refreshCart();},
   hapuspel(){const c=cart();c.pelangganId="";c.namaBebas="";reprice(c);refreshCart();setTimeout(()=>$("#nama-pelanggan")?.focus(),0);},
   mode(b){const k=b.dataset.m;S.view=MODES[k].menu.filter(m=>owner()||!m.owner)[0].v;S.pel=null;S.hut=null;S.edit=null;S.laci=false;render();},
@@ -1985,7 +2046,7 @@ const ACT={
   async hbayar(){const m=S.hutForm;const al=hutAlok(notaHutang(S.hut),m);if(!al.length)return;try{await payHutang(S.hut,al,m.met,m.bank);}catch(e){fail(e);return;}const tot=al.reduce((a,x)=>a+x.x,0);S.hutForm=null;toast("Pembayaran "+rp(tot)+" diterima.");render();},
   openlama(b){S.modal={t:"lama",pid:b.dataset.pid||S.hut||""};renderModal();},
   async savelama(){const pid=$("#hl-p").value,j=money($("#hl-j").value),t=$("#hl-t").value,k=$("#hl-k").value.trim();if(!pid||!j){toast("Pilih pelanggan dan isi jumlah.");return;}
-    const at=new Date((t||dkey(new Date()))+"T08:00").toISOString();try{await put("nota",uid(),{no:nextNo("HL",S.nota),jenis:"lama",status:"dibayar",dibuat:at,dibayarAt:at,dibuatOleh:"Pemilik",pelangganId:pid,pelangganNama:pelg(pid)?.nama||"",items:[],catatan:k,subtotal:0,potongan:0,tagihan:j,bayar:{tunai:0,transfer:0,hutang:j,bank:""},hutangDibayar:0});}catch(e){fail(e);return;}S.modal=null;toast("Hutang lama dicatat.");render();},
+    const at=new Date((t||dkey(new Date()))+"T08:00").toISOString();try{await put("nota",uid(),{no:nextNo("HL",S.nota),jenis:"lama",status:"dibayar",dibuat:at,dibayarAt:at,dibuatOleh:akunNama(),pelangganId:pid,pelangganNama:pelg(pid)?.nama||"",items:[],catatan:k,subtotal:0,potongan:0,tagihan:j,bayar:{tunai:0,transfer:0,hutang:j,bank:""},hutangDibayar:0});}catch(e){fail(e);return;}S.modal=null;toast("Hutang lama dicatat.");render();},
   /* riwayat */
   riwp(b){pilihCepat('riwp',b.dataset.p);},riwf(b){S.riw.f=b.dataset.f;render();},
   riwname(b){S.riw.q=b.dataset.q;render();},
@@ -2036,6 +2097,8 @@ const ACT={
 /* ================= event ================= */
 document.addEventListener("click",e=>{if(S.ppOpen&&!e.target.closest(".pp1")){S.ppOpen=null;render();}const b=e.target.closest("[data-act]");if(!b)return;if(b.tagName==="A"&&!b.getAttribute("href").startsWith("#"))return;if(b.tagName==="A")e.preventDefault();const f=ACT[b.dataset.act];if(!f)return;if(b.tagName==="BUTTON")e.preventDefault();if(b.dataset.act==="openpel"&&b.closest("tr.click"))e.stopPropagation();f(b,e);});
 document.addEventListener("input",e=>{const t=e.target,d=t.dataset;
+  if(d.lg){S.login[d.lg]=d.lg==="pin"?t.value.replace(/\D/g,"").slice(0,6):t.value;if(d.lg==="pin"&&t.value!==S.login.pin)t.value=S.login.pin;S.login.err="";return;}
+  if(d.ak&&S.akunEdit){S.akunEdit[d.ak]=d.ak.startsWith("pin")?t.value.replace(/\D/g,"").slice(0,6):t.value;if(d.ak.startsWith("pin")&&t.value!==S.akunEdit[d.ak])t.value=S.akunEdit[d.ak];return;}
   if(d.posq){S.q=t.value;const g=$("#grid");if(g)g.innerHTML=gridHTML();return;}
   if(d.qty!==undefined){const c=cart();const it=c.items[+d.qty];const q=qn(t.value);if(q>=0&&t.value!==""){it.qty=q;reprice(c);}return;}
   if(d.atur){const m=S.modal;if(d.atur==="qty")m.qty=t.value.replace(/\D/g,"");else{const v=t.value.replace(/\D/g,"");const f=v?Number(v).toLocaleString("id-ID"):"";if(t.value!==f)t.value=f;
@@ -2063,6 +2126,7 @@ document.addEventListener("input",e=>{const t=e.target,d=t.dataset;
 function hutRefresh(){const al=hutAlok(notaHutang(S.hut),S.hutForm);const tot=al.reduce((a,x)=>a+x.x,0);document.querySelectorAll("[data-hamt]").forEach(inp=>{const a=al.find(x=>x.n.id===inp.dataset.hamt);inp.value=a?a.x:"";});$("#h-tot").textContent=rp(tot);const btn=document.querySelector('[data-act="hbayar"]');if(btn){btn.disabled=!tot;btn.textContent="Terima "+rp(tot);}}
 document.addEventListener("change",e=>{const t=e.target,d=t.dataset;
   if(d.qty!==undefined){const c=cart();if(c.items[+d.qty].qty===0&&!(c.fromAntrian&&c.items[+d.qty].pesan!=null))c.items.splice(+d.qty,1);reprice(c);refreshCart();return;}
+  if(d.akr&&S.akunEdit){S.akunEdit.peran=t.value;return;}
   if(d.peran){S.role=t.value;try{localStorage.setItem('tkl2-role',S.role);}catch(_){}S.view='pos';S.modal=null;render();autoSlip();return;}
   if(d.pel){const c=cart();c.pelangganId=t.value;if(t.value)c.namaBebas="";c.items.forEach(i=>{if(!i.locked)i.diskManual=false;});reprice(c);refreshCart();return;}
   if(d.hbon){S.modal.hbOn=t.checked;if(t.checked&&S.modal.met==="hutang")S.modal.met="tunai";refreshPay();return;}
@@ -2080,6 +2144,7 @@ document.addEventListener("change",e=>{const t=e.target,d=t.dataset;
   if(d.riwpm){S.riw.month=t.value;S.ppOpen=null;render();return;}if(d.riwpf){S.riw.from=t.value;render();return;}if(d.riwpt){S.riw.to=t.value;render();return;}
   if(d.lappm){S.lap.month=t.value;S.ppOpen=null;render();return;}if(d.lappf){S.lap.from=t.value;render();return;}if(d.lappt){S.lap.to=t.value;render();return;}
 });
+document.addEventListener("submit",e=>{if(e.target.dataset.login){e.preventDefault();cobaMasuk();}});
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&S.modal&&!S.printing){S.modal=null;renderModal();}if(e.key==="Enter"&&e.target.dataset.posq){const t=document.querySelector("#grid .kartu-barang");if(t){e.preventDefault();t.click();}}if(e.key==="Enter"&&e.target.dataset.atur){e.preventDefault();aturSimpan();}});
 
 /* ================= mulai ================= */
@@ -2087,7 +2152,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"&&S.modal&&!S.printin
   render();
   let db=null;try{db=window.claude?await window.claude.use("db"):null;}catch(e){db=null;}
   if(db){S.db=db;S.mode="db";const got=new Set();
-    COLS.forEach(c=>{try{db.collection(c).onSnapshot(s=>{S[c]=s.docs.map(d=>({id:d.id,...JSON.parse(JSON.stringify(d.data()))}));got.add(c);if(got.size===COLS.length&&S.mode==="db")afterData();else scheduleRender();},err=>{console.error(err);toast("Sambungan data terputus. Muat ulang halaman.");});}catch(e){console.error(e);}});
+    COLS.forEach(c=>{try{db.collection(c).onSnapshot(s=>{S[c]=s.docs.map(d=>({id:d.id,...JSON.parse(JSON.stringify(d.data()))}));got.add(c);if(c==="pengaturan"&&!S.loadedPengaturan){S.loadedPengaturan=true;render();}if(got.size===COLS.length&&S.mode==="db")afterData();else scheduleRender();},err=>{console.error(err);toast("Sambungan data terputus. Muat ulang halaman.");});}catch(e){console.error(e);}});
   }else S.mode="mem";
   render();autoSlip();
 })();
