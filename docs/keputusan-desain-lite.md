@@ -27,9 +27,11 @@ Pembeli datang → **admin** input pesanan di POS (perangkat admin) → **slip p
 ## Susunan menu
 
 **Mode Kasir**
-1. **Penjualan** — tab bar **Jual | Antrian (n)**.
+1. **Kasir** — tab bar **Jual | Antrian (n) | Riwayat**. Riwayat pindah ke sini (hanya pemilik).
 2. **Hutang**
-3. **Riwayat** (termasuk Retur)
+3. **Laporan Penjualan** — laporan uang & penjualan (tanpa margin): periode, kartu kecil, penjualan per cara bayar, uang masuk, omzet harian, terlaris, barang kosong, tombol **Cetak laporan harian**.
+
+Mode Kasir punya **periode sendiri** (dipakai bersama Riwayat, Hutang, Laporan Penjualan; bawaan Hari ini). Kartu di mode Kasir dibuat **kecil satu baris** (kartu mini), bukan kartu besar seperti Back Office.
 
 **Mode Back Office (pemilik):** Laporan, Produk, Pelanggan, Pengaturan.
 
@@ -84,11 +86,16 @@ Kepala: nama toko, no. nota, **nama pelanggan** (dan alamat bila diantar), jam. 
 - Bisa **bayar hutang sekalian belanja** di dialog Bayar (diambil dari tunai dulu).
 - **Hutang lama** (sebelum memakai aplikasi): tanpa rincian barang — pelanggan, tanggal, jumlah, keterangan. Hanya pemilik.
 
-## 3. Riwayat
+## 3. Riwayat (tab di Kasir)
+
+- **Lihat, Edit, Hapus** nota yang sudah dibayar (pola daftar struk Loyverse / detail transaksi Majoo).
+  - **Edit**: nota dibuka lagi di Jual dengan isi yang sama; kasir mengubah barang, lalu **Simpan**. Uang yang sudah dibayar terbawa ("Sudah dibayar di N…"); selisih ditagih atau dikembalikan. Nota lama ditandai batal ("Diedit → N…-E") dan nota baru bernomor **N…-E** (edit berikutnya -E2, -E3). Struk mencetak "Edit dari … / Dibayar sebelumnya".
+  - **Hapus**: nota ditandai batal dengan alasan, tetap terlihat di Riwayat (filter Batal), tidak dihitung di laporan; hutang nota itu ikut terhapus.
+  - Edit/Hapus **ditolak** bila hutang nota sudah dicicil, sudah ada retur, atau nota hasil tukar retur — pakai Retur.
+- Kartu mini di atas daftar: Semua · Penjualan · Bayar hutang · Retur · Batal (jumlah + total), sekaligus filter.
 
 - **Kasir di toko ini adalah pemilik**, jadi Riwayat dibuka penuh (semua hari).
-- Periode: hari ini, kemarin, 7 hari, bulan ini, bulan lalu, pilih bulan, rentang tanggal (pola PilihPeriode versi full). Dikelompokkan per hari dengan total harian.
-- Cari no. nota / nama; filter Penjualan / Bayar hutang / Retur / Batal.
+- Dikelompokkan per hari dengan total harian; cari no. nota / nama.
 - Kolom: no. nota, jam, pelanggan (bisa diketuk), total, cara bayar, tanda selisih Pesan–Ada atau retur.
 - Buka nota: isi dengan Pesan | Ada | Ket.; cetak ulang (SALINAN), kirim WA, Retur, Batal.
 
@@ -111,9 +118,16 @@ Kepala: nama toko, no. nota, **nama pelanggan** (dan alamat bila diantar), jam. 
 
 Tanpa buka/tutup shift dan tanpa hitung laci: tombol **Cetak laporan harian**. Isi: penjualan (jumlah nota, tunai / transfer / hutang, potongan, retur, omzet bersih); uang masuk tunai & transfer; hutang (baru, dibayar, dipotong retur, total semua pelanggan); retur; terjual per kategori + 10 terlaris; barang kosong / kurang; estimasi margin.
 
+## Periode (Kasir & Back Office)
+
+- **Satu tombol** periode (mis. "📅 Bulan ini · 1 Okt – 10 Okt 2026 ▾"). Diketuk → panel kalender: **pilihan cepat di kiri** (Hari ini, Kemarin, 7 hari terakhir, Bulan ini, Bulan lalu — sekali ketuk), **kalender di kanan** (pola Majoo / date range picker).
+  - Rentang tanggal: ketuk tanggal awal lalu tanggal akhir (urutan ditukar otomatis; ketuk dua kali = satu hari).
+  - Pilih bulan: kotak Jan–Des dengan ‹ › tahun. **Tanpa mengetik.**
+  - Tanggal/bulan yang belum terjadi tidak bisa dipilih.
+
 ## Back Office: periode & kartu informasi
 
-- **Satu periode bersama** untuk Laporan, Produk, dan Pelanggan (bawaan: **Bulan ini**). Pilihan: hari ini, kemarin, 7 hari, bulan ini, bulan lalu, pilih bulan, rentang tanggal. Kartu periode menampilkan tanggalnya (mis. "1 Okt 2026 – 10 Okt 2026") dan tombol aksi halaman di kanan. Pindah halaman, periode tetap.
+- **Satu periode bersama** untuk Laporan, Produk, dan Pelanggan (bawaan: **Bulan ini**); tombol aksi halaman di kanan tombol periode. Pindah halaman, periode tetap.
 - Setiap halaman Back Office punya **kartu informasi** (pola KartuRingkas versi full). Kartu bisa diketuk untuk menyaring daftar.
   - **Laporan**: Omzet bersih · Estimasi margin · Uang masuk · Hutang pelanggan.
   - **Produk**: Barang aktif · Terjual di periode · Tidak terjual (aktif tapi tidak laku) · Untung tipis (< 5% atau rugi). Tiap barang menampilkan penjualan, jumlah terjual, dan margin di periode.

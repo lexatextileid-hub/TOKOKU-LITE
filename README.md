@@ -6,7 +6,7 @@ Tampilan dan cara kerja mengikuti TOKOKU versi full (`lexatextileid-hub/Retail-k
 
 ## Isi
 
-- **Kasir:** Penjualan (Jual | Antrian), Hutang, Riwayat (termasuk Retur)
+- **Kasir:** Kasir (Jual | Antrian | Riwayat — lihat, edit, hapus, retur), Hutang, Laporan Penjualan
 - **Back Office:** Laporan, Produk, Pelanggan, Pengaturan — dengan periode (kalender) dan kartu ringkasan
 
 Keputusan desain lengkap: [`docs/keputusan-desain-lite.md`](docs/keputusan-desain-lite.md)
