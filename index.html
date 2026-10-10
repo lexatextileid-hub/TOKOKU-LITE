@@ -1046,6 +1046,16 @@ tfoot td{font-weight:700;border-top:1px solid var(--garis);border-bottom:0;paddi
 .pj__pelanggan select,.pj__pelanggan input{height:42px}
 .pj__nota--baru{background:var(--permukaan-2)}
 .pel-cari{position:relative;display:flex;align-items:center}
+.kk-mini{display:flex;gap:6px;flex-wrap:wrap;align-items:stretch}
+.kk-mini__item{display:flex;flex-direction:column;justify-content:center;gap:0;padding:5px 10px;border:1px solid var(--garis);border-radius:var(--radius);background:var(--permukaan);text-align:left;font:inherit;color:var(--teks);min-width:0;line-height:1.25}
+button.kk-mini__item{cursor:pointer}button.kk-mini__item:hover{border-color:var(--biru-garis)}
+.kk-mini__item--aktif{border-color:var(--biru);box-shadow:0 0 0 1px var(--biru);background:var(--biru-muda)}
+.kk-mini__judul{font-size:11px;color:var(--teks-3);white-space:nowrap}
+.kk-mini__nilai{font-size:13.5px;font-weight:700;white-space:nowrap;font-variant-numeric:tabular-nums}
+.kk-mini__cat{font-size:11px;color:var(--teks-3)}
+.kk-mini--kuning{color:var(--peringatan)}.kk-mini--merah{color:var(--bahaya)}.kk-mini--biru{color:var(--biru-tua)}
+.tabbar-lite .kk-mini{padding:6px 0;justify-content:flex-end}
+@media (max-width:860px){.tabbar-lite{flex-wrap:wrap}.tabbar-lite .kk-mini{flex-wrap:nowrap;overflow-x:auto;width:100%;justify-content:flex-start;padding-bottom:8px}}
 .bo-bilah{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
 .pp1{position:relative}
 .pp1__tombol{display:inline-flex;align-items:center;gap:10px;height:42px;padding:0 14px;border:1px solid var(--garis-kuat);border-radius:var(--radius);background:var(--permukaan);cursor:pointer;color:var(--teks);font-size:14px;max-width:100%}
@@ -1095,7 +1105,7 @@ tfoot td{font-weight:700;border-top:1px solid var(--garis);border-bottom:0;paddi
 .pel-saran__item{display:flex;flex-direction:column;align-items:flex-start;gap:1px;padding:9px 12px;border:0;border-bottom:1px solid var(--garis-halus);background:none;text-align:left;cursor:pointer}
 .pel-saran__item:hover{background:var(--biru-muda)}.pel-saran__item span{font-size:12px;color:var(--teks-3)}
 .pj__label-pesanan{display:flex;justify-content:space-between;align-items:baseline;padding:10px 16px 0}
-@media (max-width:860px){.tabbar-lite{padding:0 12px}.tabbar-lite .chip{display:none}.pj-wrap{height:auto}}
+@media (max-width:860px){.tabbar-lite{padding:0 12px}.pj-wrap{height:auto}}
 </style>
 <style>html,body{margin:0;height:100%}</style>
 </head>
@@ -1242,7 +1252,9 @@ function refreshCart(){const c=$("#cartbox");if(c){c.innerHTML=cartInner();}cons
 function vPOS(banner){
   const nq=menunggu().length;
   return `<div class="pj-wrap"><div class="tabbar-lite"><div class="tabbar-lite__tab" role="group" aria-label="Penjualan"><button data-act="postab" data-t="jual" aria-pressed="${S.posTab==="jual"}">Jual</button><button data-act="postab" data-t="antrian" aria-pressed="${S.posTab==="antrian"}">Antrian${nq?`<span class="count">${nq}</span>`:""}</button></div>
-  ${owner()&&setting().autoSlip?`<span class="chip good">● Printer kasir siap · slip otomatis</span>`:`<span class="chip">Slip tercetak di printer kasir</span>`}</div>
+  ${(()=>{const r=ringkasHariIni();const q=menunggu();const qt=q.reduce((a,n)=>a+n.items.reduce((b,i)=>b+lineTotal(i),0),0);
+   return owner()?kartuMini([{judul:"Nota hari ini",nilai:r.n},{judul:"Omzet",nilai:rp(r.omzet)},{judul:"Tunai",nilai:rp(r.tunai+r.bayarH)},{judul:"Transfer",nilai:rp(r.transfer)},{judul:"Hutang baru",nilai:rp(r.hutang),warna:r.hutang?"kuning":""},{judul:"Antrian",nilai:`${q.length} · ${rp(qt)}`,warna:q.length?"biru":""}])
+     :kartuMini([{judul:"Pesanan hari ini",nilai:r.dibuat},{judul:"Antrian",nilai:q.length,warna:q.length?"biru":""}]);})()}</div>
   ${S.posTab==="jual"?(banner?`<div style="padding:8px 20px 0">${banner}</div>`:"")+posJual():`<div class="ps-halaman">${banner}${posAntrian()}</div>`}</div>`;
 }
 function posJual(){
@@ -1486,7 +1498,8 @@ function vHutang(){
   const rows=S.pelanggan.map(p=>{const ns=notaHutang(p.id);return{p,ns,h:ns.reduce((a,n)=>a+sisaNota(n),0)};}).filter(r=>S.hutAll||r.h>0).sort((a,b)=>b.h-a.h||byNama(a.p,b.p));
   const tot=totalHutang();const n=S.pelanggan.filter(p=>sisaHutang(p.id)>0).length;
   return `<div class="ph"><div><h1>Hutang</h1><p class="hint">Hutang pelanggan tanpa batas dan tanpa tempo. Pembayaran menutup nota tertua dulu.</p></div><button class="btn" data-act="openlama">+ Hutang lama</button></div>
-  <div class="kpis"><div class="kpi hl"><span class="lbl">Total hutang pelanggan</span><b>${rp(tot)}</b><small>${n} pelanggan belum lunas</small></div><div class="kpi"><span class="lbl">Dibayar hari ini</span><b>${rp(S.bayar.filter(b=>b.metode!=="retur"&&dkey(b.tanggal)===dkey(new Date())).reduce((a,b)=>a+b.jumlah,0))}</b><small>tunai & transfer</small></div></div>
+  ${(()=>{const r=ringkasHariIni();const tertua=S.nota.filter(x=>x.status==="dibayar"&&sisaNota(x)>0).sort((a,b)=>a.dibayarAt<b.dibayarAt?-1:1)[0];
+    return kartuMini([{judul:"Total hutang",nilai:rp(tot),warna:tot?"kuning":""},{judul:"Pelanggan",nilai:n},{judul:"Hutang baru hari ini",nilai:rp(r.hutang)},{judul:"Dibayar hari ini",nilai:rp(r.bayarH)},{judul:"Nota tertua",nilai:tertua?tgl(tertua.dibayarAt):"–"}]);})()}
   <section class="panel"><div class="ph"><h2>Pelanggan berhutang</h2><label class="switch" style="text-transform:none;letter-spacing:0;font-size:13.5px;color:var(--fg)"><input type="checkbox" data-hutall="1" ${S.hutAll?"checked":""}> Tampilkan yang sudah lunas</label></div>
   ${rows.length?`<div class="tw"><table><thead><tr><th>Pelanggan</th><th>No. telepon</th><th class="n">Nota belum lunas</th><th>Nota tertua</th><th class="n">Sisa hutang</th></tr></thead><tbody>${rows.map(r=>`<tr class="click" data-act="openhut" data-id="${r.p.id}"><td><b>${esc(r.p.nama)}</b></td><td>${esc(r.p.telp||"–")}</td><td class="n">${r.ns.length||"–"}</td><td>${r.ns[0]?tgl(r.ns[0].dibayarAt):"–"}</td><td class="n">${r.h?`<b style="color:var(--warn)">${rp(r.h)}</b>`:`<span class="chip good">Lunas</span>`}</td></tr>`).join("")}</tbody><tfoot><tr><td colspan="4">Total</td><td class="n">${rp(tot)}</td></tr></tfoot></table></div>`:`<div class="empty"><b>Tidak ada hutang</b><span>Nota yang dibayar dengan hutang akan muncul di sini.</span></div>`}</section>`;
 }
@@ -1563,6 +1576,11 @@ function kalHari(o,act){const c=S.ppCal;const [y,m]=c.ym.split("-").map(Number);
   <div class="kal__hari">${["Sen","Sel","Rab","Kam","Jum","Sab","Min"].map(h=>`<span class="kal__nama">${h}</span>`).join("")}${cells.join("")}</div>
   <p class="kal__bantu">${c.mulai?`Mulai ${tgl(c.mulai+"T00:00")} · ketuk tanggal akhir (ketuk lagi tanggal yang sama untuk satu hari)`:"Ketuk tanggal awal, lalu tanggal akhir."}</p>`;}
 function periodeBO(aksi){return `<div class="bo-bilah">${periodCtl(S.lap,"lapp")}${aksi?`<div class="baris-tombol">${aksi}</div>`:""}</div>`;}
+/** Kartu kecil untuk mode Kasir: satu baris, tidak memakan tempat. */
+function kartuMini(items){return `<div class="kk-mini">${items.map(x=>{const isi=`<span class="kk-mini__judul">${x.judul}</span><b class="kk-mini__nilai ${x.warna?"kk-mini--"+x.warna:""}">${x.nilai}</b>${x.catatan?`<span class="kk-mini__cat">${x.catatan}</span>`:""}`;return x.act?`<button class="kk-mini__item ${x.aktif?"kk-mini__item--aktif":""}" data-act="${x.act}" data-f="${x.v}">${isi}</button>`:`<div class="kk-mini__item">${isi}</div>`;}).join("")}</div>`;}
+function ringkasHariIni(){const k=dkey(new Date());const ns=S.nota.filter(n=>n.status==="dibayar"&&n.jenis!=="lama"&&n.dibayarAt&&dkey(n.dibayarAt)===k);
+  const r={n:ns.length,omzet:ns.reduce((a,n)=>a+n.subtotal-(n.potongan||0),0),tunai:ns.reduce((a,n)=>a+Math.max(0,n.bayar?.tunai||0),0),transfer:ns.reduce((a,n)=>a+Math.max(0,n.bayar?.transfer||0),0),hutang:ns.reduce((a,n)=>a+(n.bayar?.hutang||0),0)};
+  const bh=S.bayar.filter(b=>b.metode!=="retur"&&dkey(b.tanggal)===k);r.bayarH=bh.reduce((a,b)=>a+b.jumlah,0);r.dibuat=S.nota.filter(n=>n.jenis!=="lama"&&dkey(n.dibuat)===k&&n.status!=="batal").length;return r;}
 /** Kartu ringkas (pola KartuRingkas versi full). */
 function kartuRingkas(items){return `<div class="kk-ringkas" style="grid-template-columns:repeat(${Math.min(items.length,4)},minmax(0,1fr))">${items.map(x=>{const k=`kartu kb-angka ${x.warna==="merah"?"kb-angka--merah":""} ${x.warna==="utama"?"kk-utama":""} ${x.aktif?"bd-aktif":""}`;const isi=`<span class="teks-pudar">${x.judul}</span><strong>${x.nilai}</strong>${x.catatan?`<span class="teks-pudar">${x.catatan}</span>`:""}`;return x.act?`<button class="${k} kk-klik" data-act="${x.act}" data-v="${x.v||""}">${isi}</button>`:`<div class="${k}">${isi}</div>`;}).join("")}</div>`;}
 function jualPerProduk(s,e){const m={};S.nota.forEach(n=>{if(n.status!=="dibayar"||n.jenis==="lama"||!n.dibayarAt)return;const t=new Date(n.dibayarAt);if(t<s||t>=e)return;n.items.forEach(it=>{if(!(it.qty>0))return;const x=m[it.pid]||(m[it.pid]={q:0,o:0,m:0,n:0,last:""});x.q+=it.qty*(it.isi||1);x.o+=lineTotal(it);x.m+=lineTotal(it)-it.qty*(it.beli||0);x.n++;if(n.dibayarAt>x.last)x.last=n.dibayarAt;});});return m;}
@@ -1574,7 +1592,9 @@ function vRiwayat(){
   S.bayar.forEach(b=>{if(!inR(b.tanggal)||b.metode==="retur")return;rows.push({t:b.tanggal,k:"bayar",b,nama:pelg(b.pelangganId)?.nama||"?",no:b.no,pid:b.pelangganId,total:b.jumlah});});
   S.retur.forEach(r=>{if(!inR(r.tanggal))return;rows.push({t:r.tanggal,k:"retur",r,nama:r.pelangganId?(pelg(r.pelangganId)?.nama||"?"):(r.namaBebas||"-"),no:r.no,pid:r.pelangganId,total:-r.nilai});});
   const F={semua:()=>true,jual:x=>x.k==="jual",bayar:x=>x.k==="bayar",retur:x=>x.k==="retur",batal:x=>x.k==="batal"};
-  rows=rows.filter(F[o.f]).filter(x=>!q||norm(x.no).includes(q)||norm(x.nama).includes(q)).sort((a,b)=>a.t<b.t?1:-1);
+  rows=rows.filter(x=>!q||norm(x.no).includes(q)||norm(x.nama).includes(q));
+  const sumK=k=>{const r=rows.filter(F[k]);return{n:r.length,t:r.reduce((a,x)=>a+(x.k==="batal"?0:x.total),0)};};const cJ=sumK("jual"),cB=sumK("bayar"),cR=sumK("retur"),cX=sumK("batal");
+  rows=rows.filter(F[o.f]).sort((a,b)=>a.t<b.t?1:-1);
   const groups={};rows.forEach(x=>{(groups[dkey(x.t)]||(groups[dkey(x.t)]=[])).push(x);});
   const KL={jual:["Penjualan","blue"],bayar:["Bayar hutang","good"],retur:["Retur","warn"],batal:["Batal","bad"],lama:["Hutang lama",""]};
   const cara=x=>{if(x.k==="jual"){const b=x.n.bayar||{};return [b.tunai>0?"Tunai":"",b.transfer>0?"Transfer":"",b.hutang?"Hutang":"",x.n.kredit?"Retur":""].filter(Boolean).join(" + ")||"–";}if(x.k==="bayar")return x.b.metode==="transfer"?"Transfer":"Tunai";if(x.k==="retur")return({uang:"Uang kembali",hutang:"Potong hutang",tukar:"Tukar sama",ganti:"Ganti barang"})[x.r.penyelesaian];return"–";};
@@ -1582,7 +1602,7 @@ function vRiwayat(){
   const nameCell=x=>x.pid&&pelg(x.pid)?`<button class="link" data-act="openpel" data-id="${x.pid}">${esc(x.nama)}</button>`:x.nama&&x.nama!=="-"?`<button class="link" data-act="riwname" data-q="${esc(x.nama)}">${esc(x.nama)}</button>`:`<span class="muted">-</span>`;
   return `<div class="ph"><div><h1>Riwayat</h1><p class="hint">Semua nota, pembayaran hutang, dan retur. Ketuk baris untuk membuka, ketuk nama untuk ke pelanggan.</p></div></div>
   <section class="panel"><div class="bo-bilah">${periodCtl(o,"riwp")}<div class="field" style="flex:1 1 260px;max-width:420px"><input type="search" id="riwq" data-riwq="1" placeholder="Cari no. nota atau nama…" value="${esc(o.q)}"></div></div>
-  <div class="seg">${[["semua","Semua"],["jual","Penjualan"],["bayar","Bayar hutang"],["retur","Retur"],["batal","Batal"]].map(([k,l])=>`<button data-act="riwf" data-f="${k}" aria-pressed="${o.f===k}">${l}</button>`).join("")}</div>
+  ${kartuMini([{judul:"Semua",nilai:cJ.n+cB.n+cR.n+cX.n,act:"riwf",v:"semua",aktif:o.f==="semua"},{judul:"Penjualan",nilai:`${cJ.n} · ${rp(cJ.t)}`,act:"riwf",v:"jual",aktif:o.f==="jual"},{judul:"Bayar hutang",nilai:`${cB.n} · ${rp(cB.t)}`,act:"riwf",v:"bayar",aktif:o.f==="bayar"},{judul:"Retur",nilai:`${cR.n} · ${rp(-cR.t)}`,act:"riwf",v:"retur",aktif:o.f==="retur"},{judul:"Batal",nilai:cX.n,act:"riwf",v:"batal",aktif:o.f==="batal",warna:cX.n?"merah":""}])}
   ${rows.length?`<div class="tw"><table><thead><tr><th>Jam</th><th>No.</th><th>Jenis</th><th>Pelanggan</th><th>Cara bayar</th><th class="n">Total</th></tr></thead><tbody>
   ${Object.keys(groups).sort().reverse().map(k=>{const g=groups[k];const sum=g.filter(x=>x.k==="jual").reduce((a,x)=>a+x.n.subtotal-(x.n.potongan||0),0);return `<tr class="day"><td colspan="5">${hari(k)}</td><td class="n">${rp(sum)}</td></tr>`+g.map(x=>`<tr class="click" data-act="riwopen" data-k="${x.k}" data-id="${x.n?.id||x.b?.id||x.r?.id}"><td>${jam(x.t)}</td><td style="font-family:var(--mono);font-weight:600">${esc(x.no)}</td><td><span class="chip ${KL[x.k][1]}">${KL[x.k][0]}</span> ${flags(x)}</td><td>${nameCell(x)}</td><td>${cara(x)}</td><td class="n">${x.k==="batal"?`<s class="muted">${rp(x.total)}</s>`:rp(x.total)}</td></tr>`).join("");}).join("")}
   </tbody></table></div>`:`<div class="empty"><b>Tidak ada transaksi</b><span>Coba ubah periode atau filter.</span></div>`}</section>`;
