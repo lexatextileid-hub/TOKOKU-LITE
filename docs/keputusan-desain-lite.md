@@ -154,7 +154,14 @@ Khusus pemilik. **Bisa diunduh sebagai PDF** (di aplikasi asli).
 - Satuan dasar + satuan besar berantai ("Karton isi 10 Renteng"); satuan dipilih dari Master Satuan.
 - Tiap satuan: harga beli, harga jual, untung %. Tanda ⚠ bila satuan besar lebih mahal per satuan dasar.
 - **Harga bertingkat per jumlah** dan **diskon khusus per pelanggan per barang**: dipakai, sama dengan versi full.
-- Ubah harga cepat per kategori; import Excel untuk isi awal (di aplikasi asli).
+- Ubah harga cepat per kategori.
+- **Impor Excel** (tombol di Produk): unduh template dari aplikasi → isi → pilih file → pratinjau → Impor.
+  - Template dibuat di browser (ExcelJS) dari Pengaturan saat itu: Kategori dan semua kolom Satuan berupa **dropdown** (sheet Daftar), sheet Petunjuk, baris 2 contoh (dilewati).
+  - Kolom: nama*, kategori*, kode cepat, satuan dasar*, beli, jual*, 2 satuan besar (satuan, isi dalam satuan dasar, beli, jual), 2 tingkat grosir.
+  - **SKU otomatis** per kode kategori, melanjutkan nomor terbesar yang sudah ada.
+  - Baris bermasalah (kategori/satuan tidak dikenal, harga jual kosong, isi ≤ 1, nama ganda di file) ditandai dan tidak ikut.
+  - Nama yang sudah ada di aplikasi dilewati; bila dicentang "Perbarui", harga & satuannya diganti dengan SKU tetap.
+  - Disimpan sekaligus (upsert per 200 baris).
 - Tidak masuk Lite: stok, minimum/maksimum, letak, FIFO, harga beli per distributor, status gerak.
 
 ## Back Office: Pelanggan
