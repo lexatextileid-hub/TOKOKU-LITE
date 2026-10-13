@@ -1057,6 +1057,9 @@ tfoot td{font-weight:700;border-top:1px solid var(--garis);border-bottom:0;paddi
 .login__pad button:active{background:var(--biru-muda)}
 .login__pad .login__ok{background:var(--biru);border-color:var(--biru);color:#fff;font-size:15px}
 .kepala__pengguna .btn{margin-left:4px}
+.impor-langkah{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 12px;border:1px solid var(--garis);border-radius:var(--radius);background:var(--permukaan-2)}
+.sheet .centang{font-size:14px;font-weight:500;letter-spacing:0;text-transform:none;color:var(--teks)}
+.impor-langkah b{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--biru);color:#fff;font-size:12px;margin-right:6px}
 .kk-mini{display:flex;gap:6px;flex-wrap:wrap;align-items:stretch}
 .kk-mini__item{display:flex;flex-direction:column;justify-content:center;gap:0;padding:5px 10px;border:1px solid var(--garis);border-radius:var(--radius);background:var(--permukaan);text-align:left;font:inherit;color:var(--teks);min-width:0;line-height:1.25}
 button.kk-mini__item{cursor:pointer}button.kk-mini__item:hover{border-color:var(--biru-garis)}
@@ -1273,7 +1276,7 @@ function renderModal(){
   const m=S.modal;if(!m){$("#modal").innerHTML="";return;}
   const DLG={atur:[mAtur,560],pay:[mPay,520],pelbaru:[mPelBaru,460],replace:[mReplace,480],view:[mViewNota,420]};
   if(DLG[m.t]){$("#modal").innerHTML=`<div class="modal" data-act="closemodal" data-self="1"><section class="dialog" role="dialog" aria-modal="true" style="max-width:${DLG[m.t][1]}px">${DLG[m.t][0](m)}</section></div>`;return;}
-  const fn={nota:mNota,retur:mRetur,batal:mBatal,akun:mAkun,lama:mLama,bayardet:m=>mBayarDetail(S.bayar.find(x=>x.id===m.id))}[m.t];
+  const fn={impor:mImpor,nota:mNota,retur:mRetur,batal:mBatal,akun:mAkun,lama:mLama,bayardet:m=>mBayarDetail(S.bayar.find(x=>x.id===m.id))}[m.t];
   $("#modal").innerHTML=`<div class="modal" data-act="closemodal" data-self="1"><div class="sheet ${m.wide?"wide":""}" role="dialog">${fn(m)}</div></div>`;
 }
 function refreshCart(){const c=$("#cartbox");if(c){c.innerHTML=cartInner();}const g=$("#grid");if(g)g.innerHTML=gridHTML();const r=document.querySelector(".pj__ringkas-tombol");if(r){const k=cart();r.innerHTML=`<span>${k.items.length} barang · ${esc(custName(k))}</span><strong>${rp(cartTotal(k))}</strong><span class="pj__ringkas-lihat">Lihat keranjang →</span>`;}}
@@ -1607,6 +1610,67 @@ function kalHari(o,act){const c=S.ppCal;const [y,m]=c.ym.split("-").map(Number);
   <div class="kal__hari">${["Sen","Sel","Rab","Kam","Jum","Sab","Min"].map(h=>`<span class="kal__nama">${h}</span>`).join("")}${cells.join("")}</div>
   <p class="kal__bantu">${c.mulai?`Mulai ${tgl(c.mulai+"T00:00")} · ketuk tanggal akhir (ketuk lagi tanggal yang sama untuk satu hari)`:"Ketuk tanggal awal, lalu tanggal akhir."}</p>`;}
 function periodeBO(aksi){return `<div class="bo-bilah">${periodCtl(S.lap,"lapp")}${aksi?`<div class="baris-tombol">${aksi}</div>`:""}</div>`;}
+/* ================= Impor produk dari Excel ================= */
+const IMPOR_KOLOM=["Nama barang*","Kategori*","Kode cepat","Satuan dasar*","Harga beli","Harga jual*","Satuan besar 1","Isi 1 (dalam satuan dasar)","Harga beli 1","Harga jual 1","Satuan besar 2","Isi 2 (dalam satuan dasar)","Harga beli 2","Harga jual 2","Grosir mulai (jumlah satuan dasar)","Harga grosir per satuan dasar","Grosir 2 mulai","Harga grosir 2"];
+function muatExcelJS(){if(window.ExcelJS)return Promise.resolve();return new Promise((ok,no)=>{const sc=document.createElement("script");sc.src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js";sc.onload=()=>ok();sc.onerror=()=>no(new Error("Gagal memuat pustaka Excel. Periksa koneksi internet."));document.head.appendChild(sc);});}
+async function unduhTemplate(){
+  await muatExcelJS();const st=setting();const wb=new window.ExcelJS.Workbook();
+  const ws=wb.addWorksheet("Produk",{views:[{state:"frozen",ySplit:1}]});const dl=wb.addWorksheet("Daftar");const pt=wb.addWorksheet("Petunjuk");
+  ws.addRow(IMPOR_KOLOM);const h=ws.getRow(1);h.font={name:"Arial",bold:true,color:{argb:"FFFFFFFF"}};h.fill={type:"pattern",pattern:"solid",fgColor:{argb:"FF1E5BD8"}};h.alignment={vertical:"middle",wrapText:true};h.height=32;
+  [34,24,12,14,12,12,14,14,12,12,14,14,12,12,16,16,12,12].forEach((w,i)=>ws.getColumn(i+1).width=w);
+  const ex=ws.addRow(["Contoh: Indomie Goreng 85 g","Mi & Makanan Instan","IMG","Pcs",3050,3500,"Karton",40,118000,128000,"","","","","","","",""]);ex.font={name:"Arial",italic:true,color:{argb:"FF7A8396"}};
+  for(let c=1;c<=IMPOR_KOLOM.length;c++){ws.getColumn(c).font=ws.getColumn(c).font||{name:"Arial"};}
+  dl.addRow(["Kategori","Satuan"]);dl.getRow(1).font={name:"Arial",bold:true};const nk=st.kategori.length,ns=st.satuan.length;
+  for(let i=0;i<Math.max(nk,ns);i++)dl.addRow([st.kategori[i]?.nama||null,st.satuan[i]||null]);dl.getColumn(1).width=30;dl.getColumn(2).width=16;
+  const lk=`Daftar!$A$2:$A$${nk+1}`,ls=`Daftar!$B$2:$B$${ns+1}`;
+  for(let r=2;r<=1001;r++){ws.getCell(`B${r}`).dataValidation={type:"list",allowBlank:true,formulae:[lk],showErrorMessage:true,errorTitle:"Kategori",error:"Pilih kategori dari daftar."};
+    ["D","G","K"].forEach(c=>ws.getCell(`${c}${r}`).dataValidation={type:"list",allowBlank:true,formulae:[ls],showErrorMessage:true,errorTitle:"Satuan",error:"Pilih satuan dari daftar."});}
+  [["Cara mengisi template produk TOKOKU Lite"],[""],["1. Isi satu barang per baris di sheet Produk, mulai baris 3. Baris 2 adalah contoh dan tidak ikut diimpor."],["2. Kolom bertanda * wajib diisi. Kategori dan semua kolom Satuan dipilih dari dropdown."],["3. SKU tidak perlu diisi; dibuat otomatis oleh aplikasi (kode kategori + nomor urut)."],["4. Harga diisi angka saja tanpa Rp dan titik, mis. 3500."],["5. Satuan besar opsional. Isi = berapa satuan dasar dalam satu satuan besar, mis. Karton isi 40 Pcs."],["6. Grosir opsional: harga per satuan dasar turun mulai jumlah tertentu, mis. mulai 5 → 18000."],["7. Simpan, lalu di aplikasi: Back Office → Produk → Impor Excel → pilih file ini."],["8. Barang yang namanya sudah ada di aplikasi dilewati, kecuali dicentang \"Perbarui harga barang yang sudah ada\"."],["9. Kategori atau satuan baru ditambah dulu di Pengaturan, lalu unduh template lagi."]].forEach(r=>pt.addRow(r));
+  pt.getColumn(1).width=110;pt.getRow(1).font={name:"Arial",bold:true,size:13};
+  const buf=await wb.xlsx.writeBuffer();const url=URL.createObjectURL(new Blob([buf],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}));
+  const a=document.createElement("a");a.href=url;a.download="template-produk-tokoku-lite.xlsx";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),4000);
+}
+function nilaiSel(cell){let x=cell.value;if(x&&typeof x==="object"){if(x instanceof Date)return dkey(x);if("result" in x)x=x.result;else if(x.richText)x=x.richText.map(t=>t.text).join("");else if("text" in x)x=x.text;}return x==null?"":x;}
+const angkaSel=v=>typeof v==="number"?v:money(v);
+async function bacaImpor(file){
+  await muatExcelJS();const st=setting();const wb=new window.ExcelJS.Workbook();await wb.xlsx.load(await file.arrayBuffer());
+  const ws=wb.getWorksheet("Produk")||wb.worksheets[0];const kat=new Map(st.kategori.map(k=>[norm(k.nama),k.nama]));const sat=new Map(st.satuan.map(x=>[norm(x),x]));
+  const ada=new Map(S.produk.map(p=>[norm(p.nama),p]));const diFile=new Set();const rows=[];
+  ws.eachRow((row,i)=>{if(i===1)return;const v=k=>nilaiSel(row.getCell(k));const nama=String(v(1)).trim();if(!nama||/^contoh\s*:/i.test(nama))return;
+    const err=[];const kn=kat.get(norm(v(2)));if(!kn)err.push(v(2)?`kategori "${v(2)}" tidak ada`:"kategori kosong");
+    const sd=sat.get(norm(v(4)));if(!sd)err.push(v(4)?`satuan "${v(4)}" tidak ada`:"satuan dasar kosong");
+    const jual=angkaSel(v(6));if(!jual)err.push("harga jual kosong");
+    const satuan=[{nama:sd||String(v(4)),isi:1,rel:1,beli:angkaSel(v(5)),jual}];
+    [[7,8,9,10],[11,12,13,14]].forEach(([a,b,c,d],j)=>{const nm=String(v(a)).trim();if(!nm&&!v(b)&&!v(d))return;const sn=sat.get(norm(nm));const isi=Math.round(qn(v(b)));const hj=angkaSel(v(d));
+      if(!sn)err.push(`satuan besar ${j+1} "${nm}" tidak ada`);if(!(isi>1))err.push(`isi satuan besar ${j+1} harus lebih dari 1`);if(!hj)err.push(`harga jual satuan besar ${j+1} kosong`);
+      satuan.push({nama:sn||nm,isi,beli:angkaSel(v(c)),jual:hj});});
+    satuan.sort((a,b)=>a.isi-b.isi);satuan.forEach((x,k)=>x.rel=k?x.isi/satuan[k-1].isi:1);
+    if(new Set(satuan.map(x=>x.nama+"|"+x.isi)).size!==satuan.length)err.push("ada satuan yang sama dua kali");
+    const tingkat=[[15,16],[17,18]].map(([a,b])=>({min:qn(v(a)),harga:angkaSel(v(b))})).filter(t=>t.min>0&&t.harga>0).sort((a,b)=>a.min-b.min);
+    const kunci=norm(nama);if(diFile.has(kunci))err.push("nama ganda di file");diFile.add(kunci);
+    rows.push({baris:i,nama,kategori:kn||String(v(2)),kode:String(v(3)).trim(),satuan,tingkat,err,lama:ada.get(kunci)||null});});
+  return rows;
+}
+function mImpor(m){const I=S.imp||{};const rows=I.rows||[];const siap=rows.filter(r=>!r.err.length&&!r.lama).length,adaN=rows.filter(r=>!r.err.length&&r.lama).length,salah=rows.filter(r=>r.err.length).length;const n=siap+(I.perbarui?adaN:0);
+  return `<div class="sheet-h"><div><h2>Impor produk dari Excel</h2><p class="hint" style="margin:0">SKU dibuat otomatis. Kategori dan satuan di template berupa pilihan (dropdown).</p></div><button class="x" data-act="closemodal">×</button></div>
+  <div class="impor-langkah"><div><b>1</b> Unduh template</div><button class="btn" data-act="importemplate">Unduh template Excel</button></div>
+  <div class="impor-langkah"><div><b>2</b> Isi di Excel, simpan, lalu pilih filenya</div><input type="file" accept=".xlsx" data-imporfile="1" aria-label="Pilih file Excel" style="height:auto;padding:8px"></div>
+  ${I.sibuk?`<p class="teks-pudar">Membaca file…</p>`:""}${I.err?`<p class="catatan catatan--bahaya">${esc(I.err)}</p>`:""}
+  ${rows.length?`${kartuMini([{judul:"Siap diimpor",nilai:siap,warna:"biru"},{judul:"Sudah ada",nilai:adaN},{judul:"Bermasalah",nilai:salah,warna:salah?"merah":""}])}
+   ${adaN?`<label class="centang"><input type="checkbox" data-imporperbarui="1" ${I.perbarui?"checked":""}> Perbarui harga & satuan barang yang sudah ada (${adaN}); SKU tetap</label>`:""}
+   <div class="tw" style="max-height:44vh;overflow:auto"><table><thead><tr><th class="n">Baris</th><th>Nama barang</th><th>Kategori</th><th>Satuan & harga jual</th><th>Status</th></tr></thead><tbody>${rows.slice(0,500).map(r=>`<tr><td class="n">${r.baris}</td><td>${esc(r.nama)}</td><td>${esc(r.kategori)}</td><td style="font-size:12.5px">${r.satuan.map(x=>esc(x.nama)+(x.isi>1?" isi "+x.isi:"")+" "+rp(x.jual)).join(" · ")}${r.tingkat.length?` · grosir ${r.tingkat.length}`:""}</td><td>${r.err.length?`<span class="chip bad">${esc(r.err.join("; "))}</span>`:r.lama?`<span class="chip">${I.perbarui?"diperbarui":"dilewati, sudah ada"} (${esc(r.lama.sku)})</span>`:`<span class="chip good">siap</span>`}</td></tr>`).join("")}</tbody></table></div>
+   ${salah?`<p class="hint" style="margin:0">Baris bermasalah tidak ikut diimpor. Perbaiki di Excel lalu pilih file lagi, atau impor yang siap dulu.</p>`:""}
+   <div class="sheet-a"><button class="btn" data-act="closemodal">Batal</button><button class="btn primary" data-act="imporjalan" ${n&&!I.jalan?"":"disabled"}>${I.jalan?"Mengimpor…":`Impor ${n} produk`}</button></div>`:""}`;}
+async function putBanyak(c,docs){
+  if(S.mode==="sb"){docs.forEach(d=>lokal(c,d.id,d.data,false));afterData();const now=new Date().toISOString();for(let i=0;i<docs.length;i+=200){const {error}=await SB.from(c).upsert(docs.slice(i,i+200).map(d=>({id:d.id,data:JSON.parse(JSON.stringify(d.data)),diubah:now})));if(error)throw sbErr(error);}return;}
+  for(const d of docs)await put(c,d.id,d.data);}
+async function jalankanImpor(){const I=S.imp;const rows=I.rows.filter(r=>!r.err.length&&(!r.lama||I.perbarui));if(!rows.length)return;I.jalan=true;renderModal();
+  const maks={};S.produk.forEach(p=>{const [k,n]=(p.sku||"").split("-");if(k&&n)maks[k]=Math.max(maks[k]||0,parseInt(n)||0);});
+  const docs=rows.map(r=>{const base={nama:r.nama,kategori:r.kategori,kode:r.kode,satuan:r.satuan,tingkat:r.tingkat,aktif:true,diubah:now()};
+    if(r.lama){const o=JSON.parse(JSON.stringify(r.lama));delete o.id;return{id:r.lama.id,data:{...o,...base,sku:r.lama.sku,kode:r.kode||r.lama.kode||""}};}
+    const k=katKode(r.kategori);maks[k]=(maks[k]||0)+1;return{id:uid(),data:{...base,sku:k+"-"+String(maks[k]).padStart(5,"0")}};});
+  try{await putBanyak("produk",docs);}catch(e){I.jalan=false;fail(e);renderModal();return;}
+  const baru=rows.filter(r=>!r.lama).length,upd=rows.length-baru;S.imp=null;S.modal=null;renderModal();render();toast(`Impor selesai: ${baru} produk baru${upd?`, ${upd} diperbarui`:""}.`);}
 /** Kartu kecil untuk mode Kasir: satu baris, tidak memakan tempat. */
 function kartuMini(items){return `<div class="kk-mini">${items.map(x=>{const isi=`<span class="kk-mini__judul">${x.judul}</span><b class="kk-mini__nilai ${x.warna?"kk-mini--"+x.warna:""}">${x.nilai}</b>${x.catatan?`<span class="kk-mini__cat">${x.catatan}</span>`:""}`;return x.act?`<button class="kk-mini__item ${x.aktif?"kk-mini__item--aktif":""}" data-act="${x.act}" data-f="${x.v}">${isi}</button>`:`<div class="kk-mini__item">${isi}</div>`;}).join("")}</div>`;}
 function ringkasHariIni(){const k=dkey(new Date());const ns=S.nota.filter(n=>n.status==="dibayar"&&n.jenis!=="lama"&&n.dibayarAt&&dkey(n.dibayarAt)===k);
@@ -1744,7 +1808,7 @@ function vProduk(){
   const aktif=S.produk.filter(p=>p.aktif!==false);const laku=aktif.filter(p=>J[p.id]);const tidak=aktif.filter(p=>!J[p.id]);const tipis=aktif.filter(p=>{const u=untungMin(p);return u!=null&&u<5;});
   const totJ=Object.values(J).reduce((a,x)=>a+x.o,0);const F=S.lap.prodF;
   const kats=[...new Set(S.produk.map(p=>p.kategori))].sort();
-  return `${periodeBO(`${S.produk.length?"":`<button class="btn" data-act="contoh">Muat contoh data</button>`}<button class="btn primary" data-act="newprod">+ Produk</button>`)}
+  return `${periodeBO(`${S.produk.length?"":`<button class="btn" data-act="contoh">Muat contoh data</button>`}<button class="btn" data-act="imporbuka">Impor Excel</button><button class="btn primary" data-act="newprod">+ Produk</button>`)}
   ${kartuRingkas([{judul:"Barang aktif",nilai:aktif.length,catatan:`${S.produk.length-aktif.length} nonaktif · ${kats.length} kategori`,act:"prodf",v:"semua",aktif:F==="semua"},
     {judul:"Terjual di periode",nilai:`${laku.length} barang`,catatan:`penjualan ${rp(totJ)}`,act:"prodf",v:"laku",aktif:F==="laku",warna:F==="laku"?"":""},
     {judul:"Tidak terjual",nilai:`${tidak.length} barang`,catatan:"aktif tapi tidak laku di periode ini",act:"prodf",v:"tidak",aktif:F==="tidak"},
@@ -2000,6 +2064,9 @@ function cobaMasuk(){if(S.mode==="sb"){cobaMasukSB();return;}const L=S.login;con
   if(a.aktif===false){L.err="Akun ini dinonaktifkan. Hubungi pemilik.";L.pin="";render();return;}
   S.user=a;S.role=a.peran;SIMPAN_USER=a.id;try{localStorage.setItem("tkl-user",a.id);}catch(e){}S.login={u:"",pin:"",err:""};S.view="pos";S.posTab="jual";render();autoSlip();toast("Halo, "+a.nama+".");}
 const ACT={
+  imporbuka(){S.imp={rows:[],perbarui:false};S.modal={t:"impor",wide:true};renderModal();},
+  async importemplate(){try{await unduhTemplate();toast("Template diunduh.");}catch(e){toast(e.message||"Gagal membuat template.");}},
+  imporjalan(){jalankanImpor();},
   contohtanya(){S.konfirmContoh=true;render();},contohbatal(){S.konfirmContoh=false;render();},
   async contohhapus(){const ps=S.produk.filter(x=>x.contoh).map(x=>x.id),ls=S.pelanggan.filter(x=>x.contoh).map(x=>x.id);
     try{for(const id of ps)await hapusDoc("produk",id);for(const id of ls)await hapusDoc("pelanggan",id);}catch(e){fail(e);return;}S.konfirmContoh=false;toast(`Data contoh dihapus: ${ps.length} produk, ${ls.length} pelanggan.`);render();},
@@ -2175,6 +2242,8 @@ document.addEventListener("change",e=>{const t=e.target,d=t.dataset;
   if(d.hmet&&S.hutForm){S.hutForm.met=t.value;return;}
   if(d.ral){S.modal.al=t.value;return;}
   if(d.dk&&S.pelDisk){S.pelDisk[+d.i][d.dk]=t.value;render();return;}
+  if(d.imporfile){const f=t.files&&t.files[0];if(!f)return;S.imp={rows:[],perbarui:false,sibuk:true};renderModal();bacaImpor(f).then(rows=>{S.imp={rows,perbarui:false};if(!rows.length)S.imp.err="Tidak ada baris produk di file. Isi mulai baris 3 sheet Produk.";renderModal();}).catch(e=>{console.error(e);S.imp={rows:[],err:"File tidak bisa dibaca. Pastikan memakai template .xlsx dari aplikasi."};renderModal();});return;}
+  if(d.imporperbarui){S.imp.perbarui=t.checked;renderModal();return;}
   if(d.autoslip){saveSetting({autoSlip:t.checked}).catch(fail);return;}
   if(d.riwpm){S.riw.month=t.value;S.ppOpen=null;render();return;}if(d.riwpf){S.riw.from=t.value;render();return;}if(d.riwpt){S.riw.to=t.value;render();return;}
   if(d.lappm){S.lap.month=t.value;S.ppOpen=null;render();return;}if(d.lappf){S.lap.from=t.value;render();return;}if(d.lappt){S.lap.to=t.value;render();return;}
