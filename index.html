@@ -1616,10 +1616,10 @@ function muatExcelJS(){if(window.ExcelJS)return Promise.resolve();return new Pro
 async function unduhTemplate(){
   await muatExcelJS();const st=setting();const wb=new window.ExcelJS.Workbook();
   const ws=wb.addWorksheet("Produk",{views:[{state:"frozen",ySplit:1}]});const dl=wb.addWorksheet("Daftar");const pt=wb.addWorksheet("Petunjuk");
+  for(let c=1;c<=IMPOR_KOLOM.length;c++)ws.getColumn(c).font={name:"Arial",size:11};
   ws.addRow(IMPOR_KOLOM);const h=ws.getRow(1);h.font={name:"Arial",bold:true,color:{argb:"FFFFFFFF"}};h.fill={type:"pattern",pattern:"solid",fgColor:{argb:"FF1E5BD8"}};h.alignment={vertical:"middle",wrapText:true};h.height=32;
   [34,24,12,14,12,12,14,14,12,12,14,14,12,12,16,16,12,12].forEach((w,i)=>ws.getColumn(i+1).width=w);
-  const ex=ws.addRow(["Contoh: Indomie Goreng 85 g","Mi & Makanan Instan","IMG","Pcs",3050,3500,"Karton",40,118000,128000,"","","","","","","",""]);ex.font={name:"Arial",italic:true,color:{argb:"FF7A8396"}};
-  for(let c=1;c<=IMPOR_KOLOM.length;c++){ws.getColumn(c).font=ws.getColumn(c).font||{name:"Arial"};}
+  const ex=ws.addRow(["Contoh: Indomie Goreng 85 g","Mi & Makanan Instan","IMG","Pcs",3050,3500,"Karton",40,118000,128000]);ex.font={name:"Arial",italic:true,color:{argb:"FF7A8396"}};
   dl.addRow(["Kategori","Satuan"]);dl.getRow(1).font={name:"Arial",bold:true};const nk=st.kategori.length,ns=st.satuan.length;
   for(let i=0;i<Math.max(nk,ns);i++)dl.addRow([st.kategori[i]?.nama||null,st.satuan[i]||null]);dl.getColumn(1).width=30;dl.getColumn(2).width=16;
   const lk=`Daftar!$A$2:$A$${nk+1}`,ls=`Daftar!$B$2:$B$${ns+1}`;
