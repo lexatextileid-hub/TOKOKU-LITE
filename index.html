@@ -1133,6 +1133,8 @@ button.kk-mini__item{cursor:pointer}button.kk-mini__item:hover{border-color:var(
 <div id="modal"></div>
 <div id="toast" class="toast" hidden></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>window.TKL_SB={url:"https://kubvpobndqhixtucwcdg.supabase.co",key:"sb_publishable_PWUOC-rAbTLX2w-9erjNvQ_bxhoCgQ4"};</script>
 <script>
 /* ================= konstanta & state ================= */
 const DEF_KAT=[["Sembako","SMB"],["Bumbu Dapur","BMB"],["Mi & Makanan Instan","MIN"],["Makanan Ringan","SNK"],["Susu","SSU"],["Minuman","MNM"],["Rokok","RKK"],["Perawatan Diri","PRD"],["Kebersihan Rumah","KBR"],["Perlengkapan Rumah Tangga","RTG"],["Gas & Air Galon","GAS"],["Perlengkapan Bayi","BYI"],["Obat & Kesehatan","OBT"],["Bawang & Umbi","UMB"],["Rempah Kering","RMP"],["Alat Tulis","ATK"],["Pakan Hewan","PKN"],["Lain-lain","LLN"]].map(([nama,kode])=>({nama,kode}));
@@ -1174,18 +1176,20 @@ const byNama=(a,b)=>a.nama.localeCompare(b.nama,"id");
 let toastT;function toast(m){const t=$("#toast");t.textContent=m;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,3000);}
 const owner=()=>S.role==="pemilik";
 const PERAN={pemilik:"Pemilik · Kasir",admin:"Admin"};
-function akunList(){const d=S.pengaturan.find(x=>x.id==="toko")||{};return d.akun&&d.akun.length?d.akun:DEF_AKUN;}
+function akunList(){if(S.mode==="sb")return S.pengguna||[];const d=S.pengaturan.find(x=>x.id==="toko")||{};return d.akun&&d.akun.length?d.akun:DEF_AKUN;}
 const akunNama=()=>S.user?.nama||"-";
-function pulihkanLogin(){if(S.user){const a=akunList().find(x=>x.id===S.user.id);if(!a||a.aktif===false){keluar("Akun ini dinonaktifkan.");}else{S.user=a;S.role=a.peran;}return;}
+function pulihkanLogin(){if(S.mode==="sb"){if(S.user&&S.pengguna){const a=S.pengguna.find(x=>x.id===S.user.id);if(a){S.user=a;S.role=a.peran;}}return;}if(S.user){const a=akunList().find(x=>x.id===S.user.id);if(!a||a.aktif===false){keluar("Akun ini dinonaktifkan.");}else{S.user=a;S.role=a.peran;}return;}
   if(SIMPAN_USER){const a=akunList().find(x=>x.id===SIMPAN_USER&&x.aktif!==false);if(a){S.user=a;S.role=a.peran;}}}
-function keluar(pesan){S.user=null;SIMPAN_USER=null;try{localStorage.removeItem("tkl-user");}catch(e){}S.login={u:"",pin:"",err:pesan||""};S.modal=null;S.laci=false;render();}
+function keluar(pesan){if(S.mode==="sb"&&SB){SB.removeAllChannels();SB.auth.signOut().catch(()=>{});COLS.forEach(c=>S[c]=[]);S.pengguna=[];}S.user=null;SIMPAN_USER=null;try{localStorage.removeItem("tkl-user");}catch(e){}S.login={u:"",pin:"",err:pesan||""};S.modal=null;S.laci=false;render();}
 const cart=()=>CART[S.role];
 
 /* ================= data ================= */
 function setting(){const d=S.pengaturan.find(x=>x.id==="toko")||{};return{nama:d.nama||"Toko Saya",alamat:d.alamat||"",telp:d.telp||"",footer:d.footer??"Terima kasih",autoSlip:d.autoSlip!==false,kategori:d.kategori||DEF_KAT,satuan:d.satuan||DEF_SAT};}
-async function put(c,id,data){if(S.db)await S.db.collection(c).doc(id).set(data);else{const i=S[c].findIndex(x=>x.id===id);const o={id,...data};if(i>=0)S[c][i]=o;else S[c].push(o);afterData();}}
-async function patch(c,id,data){if(S.db){await S.db.collection(c).doc(id).update(data);}else{const o=S[c].find(x=>x.id===id);if(o)Object.assign(o,JSON.parse(JSON.stringify(data)));afterData();}}
+function lokal(c,id,data,gabung){const i=S[c].findIndex(x=>x.id===id);const isi=JSON.parse(JSON.stringify(data));if(i>=0)S[c][i]=gabung?{...S[c][i],...isi}:{id,...isi};else if(!gabung)S[c].push({id,...isi});}
+async function put(c,id,data){if(S.mode==="sb"){const isi=JSON.parse(JSON.stringify(data));delete isi.id;lokal(c,id,isi,false);afterData();const {error}=await SB.from(c).upsert({id,data:isi,diubah:new Date().toISOString()});if(error)throw sbErr(error);return;}if(S.db)await S.db.collection(c).doc(id).set(data);else{const i=S[c].findIndex(x=>x.id===id);const o={id,...data};if(i>=0)S[c][i]=o;else S[c].push(o);afterData();}}
+async function patch(c,id,data){if(S.mode==="sb"){lokal(c,id,data,true);afterData();const {error}=await SB.rpc("patch_doc",{tbl:c,doc_id:id,isi:JSON.parse(JSON.stringify(data))});if(error)throw sbErr(error);return;}if(S.db){await S.db.collection(c).doc(id).update(data);}else{const o=S[c].find(x=>x.id===id);if(o)Object.assign(o,JSON.parse(JSON.stringify(data)));afterData();}}
 async function saveSetting(p){const cur=S.pengaturan.find(x=>x.id==="toko");const base=cur?JSON.parse(JSON.stringify(cur)):{};delete base.id;await put("pengaturan","toko",{...base,...p});}
+function sbErr(e){const x=new Error(e.message||"Gagal");x.code=/row-level security|permission|JWT/i.test(e.message||"")?"invalid_argument":"unavailable";return x;}
 function fail(e){console.error(e);toast(e&&e.code==="invalid_argument"?"Akun ini hanya bisa melihat, tidak bisa menyimpan.":e&&e.code==="quota_exceeded"?"Penyimpanan penuh.":"Gagal menyimpan. Coba lagi.");}
 function nextNo(prefix,list){const d=new Date();const p=prefix+String(d.getFullYear()).slice(2)+pad(d.getMonth()+1)+pad(d.getDate());let max=0;list.forEach(x=>{if((x.no||"").startsWith(p)){const n=parseInt(x.no.split("-")[1]);if(n>max)max=n;}});return p+"-"+String(max+1).padStart(3,"0");}
 const prod=id=>S.produk.find(p=>p.id===id);
@@ -1834,6 +1838,7 @@ function vAkun(){const list=akunList();const e=S.akunEdit;
    <div class="row"><div class="field"><label for="ak-p">${e.id?"PIN baru (kosongkan bila tetap)":"PIN (4–6 angka)"}</label><input id="ak-p" data-ak="pin" type="password" inputmode="numeric" maxlength="6" value="${esc(e.pin)}"></div><div class="field"><label for="ak-p2">Ulangi PIN</label><input id="ak-p2" data-ak="pin2" type="password" inputmode="numeric" maxlength="6" value="${esc(e.pin2)}"></div></div>
    <div class="row" style="justify-content:flex-end"><button class="btn" data-act="akunbatal">Batal</button><button class="btn primary" data-act="akunsimpan">Simpan pengguna</button></div></div>`:""}
   <div class="tw"><table><thead><tr><th>Nama</th><th>Nama pengguna</th><th>Peran</th><th>Status</th><th></th></tr></thead><tbody>${list.map(a=>`<tr><td><b>${esc(a.nama)}</b>${a.id===S.user?.id?' <span class="lencana">Anda</span>':""}</td><td>${esc(a.username)}</td><td>${PERAN[a.peran]}</td><td>${a.aktif===false?'<span class="chip bad">Nonaktif</span>':'<span class="chip good">Aktif</span>'}</td><td class="n"><button class="btn sm" data-act="akunubah" data-id="${a.id}">Ubah</button> ${a.id===S.user?.id?"":`<button class="btn sm ${a.aktif===false?"":"danger"}" data-act="akunaktif" data-id="${a.id}">${a.aktif===false?"Aktifkan":"Nonaktifkan"}</button>`}</td></tr>`).join("")}</tbody></table></div></section>`;}
+async function muatPengguna(){const {data,error}=await SB.from("pengguna").select("id,nama,username,peran,aktif").order("dibuat");if(!error){S.pengguna=data;pulihkanLogin();}}
 async function simpanAkun(list,pesan){try{await saveSetting({akun:list});}catch(e){fail(e);return false;}const me=list.find(a=>a.id===S.user?.id);if(me){S.user=me;S.role=me.peran;}toast(pesan);return true;}
 function vPengaturan(){const st=setting();
   return `${kartuRingkas([{judul:"Toko",nilai:esc(st.nama),catatan:esc(st.telp||"no. telepon belum diisi")},{judul:"Produk",nilai:`${S.produk.filter(p=>p.aktif!==false).length} aktif`,catatan:`${st.kategori.length} kategori · ${st.satuan.length} satuan`},{judul:"Pelanggan terdaftar",nilai:S.pelanggan.length,catatan:`${S.pelanggan.filter(p=>(p.diskon||[]).length).length} punya diskon khusus`},{judul:"Printer kasir",nilai:st.autoSlip?"Slip otomatis":"Slip manual",catatan:"thermal Bluetooth · tablet kasir",warna:st.autoSlip?"utama":""}])}
@@ -1960,7 +1965,7 @@ function editNota(id){const n=S.nota.find(x=>x.id===id);if(!n)return;const bl=bl
   CART.pemilik={...blankCart(),pelangganId:n.pelangganId||"",namaBebas:n.namaBebas||"",items:JSON.parse(JSON.stringify(n.items.filter(i=>i.qty>0))).map(i=>({...i,pesan:undefined,ket:undefined})),catatan:n.catatan||"",
     kredit:dibayar?{label:"Sudah dibayar di "+n.no,notaNo:n.no,nilai:dibayar}:null,editDari:{id:n.id,no:n.no,dibayar,bayar:{tunai:Math.max(0,n.bayar?.tunai||0),transfer:Math.max(0,n.bayar?.transfer||0),bank:n.bayar?.bank||""}}};
   S.modal=null;S.view="pos";S.posTab="jual";render();toast("Nota "+n.no+" dibuka untuk diedit.");}
-function vLogin(){const st=setting();const L=S.login;const loading=S.mode==="loading"||(S.mode==="db"&&!S.loadedPengaturan);
+function vLogin(){const st=setting();const L=S.login;const loading=S.mode==="loading"||S.sbSibuk||(S.mode==="db"&&!S.loadedPengaturan);
   return `<div class="login__kartu"><div class="login__merek"><div class="merek__logo" aria-hidden="true">TK</div><div><div class="merek__nama">${esc(st.nama)}</div><div class="merek__sub">TOKOKU Lite</div></div></div>
   <h1 class="login__judul">Masuk</h1>
   ${loading?`<p class="teks-pudar">Memuat data toko…</p>`:`<form class="tumpuk" data-login="1" autocomplete="off">
@@ -1969,7 +1974,23 @@ function vLogin(){const st=setting();const L=S.login;const loading=S.mode==="loa
    <div class="login__pad" role="group" aria-label="Papan angka">${["1","2","3","4","5","6","7","8","9","hapus","0","ok"].map(k=>k==="hapus"?`<button type="button" data-act="lgpad" data-k="del" aria-label="Hapus angka">⌫</button>`:k==="ok"?`<button type="submit" class="login__ok">Masuk</button>`:`<button type="button" data-act="lgpad" data-k="${k}">${k}</button>`).join("")}</div>
    ${L.err?`<p class="catatan catatan--bahaya">${esc(L.err)}</p>`:""}
   </form>`}</div>`;}
-function cobaMasuk(){const L=S.login;const u=L.u.trim().toLowerCase();const a=akunList().find(x=>x.username===u);
+const emailDari=u=>u+"@tokoku-lite.example.com",sandiDari=p=>"TKL#"+p+"#lite";
+async function fungsiPengguna(body){const {data,error}=await SB.functions.invoke("pengguna",{body});if(error){let pesan=error.message;try{const j=await error.context.json();pesan=j.error||pesan;}catch(_){}throw new Error(pesan);}return data;}
+async function masukSB(){S.sbSibuk=true;render();
+  try{const {data:{user}}=await SB.auth.getUser();if(!user)throw new Error("Sesi berakhir. Masuk lagi.");
+    const {data:pg,error}=await SB.from("pengguna").select("id,nama,username,peran,aktif").order("dibuat");if(error)throw error;S.pengguna=pg||[];
+    const me=S.pengguna.find(x=>x.id===user.id);if(!me||!me.aktif){await SB.auth.signOut();throw new Error("Akun ini dinonaktifkan. Hubungi pemilik.");}
+    await muatSemua();S.user=me;S.role=me.peran;S.sbSibuk=false;S.view="pos";S.posTab="jual";render();autoSlip();return true;
+  }catch(e){S.sbSibuk=false;S.user=null;S.login.err=e.message||"Gagal masuk.";S.login.pin="";render();return false;}}
+async function muatSemua(){for(const c of COLS){let semua=[],dari=0;for(;;){const {data,error}=await SB.from(c).select("id,data").range(dari,dari+999);if(error)throw error;semua=semua.concat(data);if(data.length<1000)break;dari+=1000;}S[c]=semua.map(r=>({id:r.id,...r.data}));}
+  SB.removeAllChannels();const ch=SB.channel("tokoku-lite");COLS.forEach(c=>ch.on("postgres_changes",{event:"*",schema:"public",table:c},p=>{const r=p.new;if(!r||!r.id)return;const i=S[c].findIndex(x=>x.id===r.id);const o={id:r.id,...r.data};if(i>=0)S[c][i]=o;else S[c].push(o);afterData();}));ch.subscribe();}
+async function cobaMasukSB(){const L=S.login;const u=L.u.trim().toLowerCase();if(!u||!L.pin){L.err="Isi nama pengguna dan PIN.";render();return;}
+  S.sbSibuk=true;render();
+  let {error}=await SB.auth.signInWithPassword({email:emailDari(u),password:sandiDari(L.pin)});
+  if(error&&u==="kasir"&&L.pin==="1234"){try{await fungsiPengguna({aksi:"awal"});({error}=await SB.auth.signInWithPassword({email:emailDari(u),password:sandiDari(L.pin)}));}catch(_){}}
+  if(error){S.sbSibuk=false;L.err=/banned/i.test(error.message)?"Akun ini dinonaktifkan. Hubungi pemilik.":/Invalid login/i.test(error.message)?"Nama pengguna atau PIN salah.":"Gagal masuk: "+error.message;L.pin="";render();setTimeout(()=>$("#lg-p")?.focus(),0);return;}
+  S.login={u:"",pin:"",err:""};if(await masukSB())toast("Halo, "+S.user.nama+".");}
+function cobaMasuk(){if(S.mode==="sb"){cobaMasukSB();return;}const L=S.login;const u=L.u.trim().toLowerCase();const a=akunList().find(x=>x.username===u);
   if(!a||String(a.pin)!==L.pin){L.err="Nama pengguna atau PIN salah.";L.pin="";render();setTimeout(()=>$("#lg-p")?.focus(),0);return;}
   if(a.aktif===false){L.err="Akun ini dinonaktifkan. Hubungi pemilik.";L.pin="";render();return;}
   S.user=a;S.role=a.peran;SIMPAN_USER=a.id;try{localStorage.setItem("tkl-user",a.id);}catch(e){}S.login={u:"",pin:"",err:""};S.view="pos";S.posTab="jual";render();autoSlip();toast("Halo, "+a.nama+".");}
@@ -1977,7 +1998,10 @@ const ACT={
   akunbaru(){S.akunEdit={id:null,nama:"",username:"",peran:"admin",pin:"",pin2:""};render();setTimeout(()=>$("#ak-n")?.focus(),0);},
   akunubah(b){const a=akunList().find(x=>x.id===b.dataset.id);S.akunEdit={id:a.id,nama:a.nama,username:a.username,peran:a.peran,pin:"",pin2:""};render();},
   akunbatal(){S.akunEdit=null;render();},
-  async akunsimpan(){const e=S.akunEdit;const list=JSON.parse(JSON.stringify(akunList()));const nama=e.nama.trim(),u=e.username.trim().toLowerCase();
+  async akunsimpan(){const e=S.akunEdit;
+    if(S.mode==="sb"){if(e.pin&&e.pin!==e.pin2){toast("PIN dan ulangi PIN tidak sama.");return;}if(!e.id&&!/^\d{4,6}$/.test(e.pin)){toast("PIN harus 4–6 angka.");return;}
+      try{await fungsiPengguna(e.id?{aksi:"ubah",id:e.id,nama:e.nama,username:e.username,peran:e.peran,pin:e.pin||undefined}:{aksi:"tambah",nama:e.nama,username:e.username,peran:e.peran,pin:e.pin});}catch(err){toast(err.message);return;}
+      await muatPengguna();S.akunEdit=null;toast(e.id?"Pengguna diperbarui.":"Pengguna "+e.nama.trim()+" ditambahkan.");render();return;}const list=JSON.parse(JSON.stringify(akunList()));const nama=e.nama.trim(),u=e.username.trim().toLowerCase();
     if(!nama){toast("Isi nama.");return;}if(!/^[a-z0-9._-]{3,20}$/.test(u)){toast("Nama pengguna 3–20 huruf kecil/angka, tanpa spasi.");return;}
     if(list.some(a=>a.username===u&&a.id!==e.id)){toast("Nama pengguna sudah dipakai.");return;}
     if(!e.id||e.pin){if(!/^\d{4,6}$/.test(e.pin)){toast("PIN harus 4–6 angka.");return;}if(e.pin!==e.pin2){toast("PIN dan ulangi PIN tidak sama.");return;}}
@@ -1986,7 +2010,7 @@ const ACT={
       a.nama=nama;a.username=u;a.peran=e.peran;if(e.pin)a.pin=e.pin;}
     else list.push({id:"u-"+uid(),nama,username:u,pin:e.pin,peran:e.peran,aktif:true,dibuat:now()});
     if(await simpanAkun(list,e.id?"Pengguna diperbarui.":"Pengguna "+nama+" ditambahkan.")){S.akunEdit=null;render();}},
-  async akunaktif(b){const list=JSON.parse(JSON.stringify(akunList()));const a=list.find(x=>x.id===b.dataset.id);
+  async akunaktif(b){if(S.mode==="sb"){const a=akunList().find(x=>x.id===b.dataset.id);try{await fungsiPengguna({aksi:"ubah",id:a.id,aktif:!a.aktif});}catch(err){toast(err.message);return;}await muatPengguna();toast(a.nama+(a.aktif?" dinonaktifkan.":" diaktifkan."));render();return;}const list=JSON.parse(JSON.stringify(akunList()));const a=list.find(x=>x.id===b.dataset.id);
     if(a.aktif!==false&&a.peran==="pemilik"&&!list.some(x=>x.peran==="pemilik"&&x.aktif!==false&&x.id!==a.id)){toast("Harus ada minimal satu Pemilik aktif.");return;}
     a.aktif=a.aktif===false;if(await simpanAkun(list,a.aktif?a.nama+" diaktifkan.":a.nama+" dinonaktifkan."))render();},
   lgpad(b){const L=S.login;if(b.dataset.k==="del")L.pin=L.pin.slice(0,-1);else if(L.pin.length<6)L.pin+=b.dataset.k;L.err="";const i=$("#lg-p");if(i)i.value=L.pin;},
@@ -2148,8 +2172,14 @@ document.addEventListener("submit",e=>{if(e.target.dataset.login){e.preventDefau
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&S.modal&&!S.printing){S.modal=null;renderModal();}if(e.key==="Enter"&&e.target.dataset.posq){const t=document.querySelector("#grid .kartu-barang");if(t){e.preventDefault();t.click();}}if(e.key==="Enter"&&e.target.dataset.atur){e.preventDefault();aturSimpan();}});
 
 /* ================= mulai ================= */
+let SB=null;
 (async()=>{
   render();
+  const cfg=window.TKL_SB;
+  if(cfg&&window.supabase&&!window.claude){SB=window.supabase.createClient(cfg.url,cfg.key,{auth:{persistSession:true,autoRefreshToken:true,storageKey:"tkl-sb"}});S.mode="sb";
+    const {data:{session}}=await SB.auth.getSession();if(session)await masukSB();else render();
+    SB.auth.onAuthStateChange((ev)=>{if(ev==="SIGNED_OUT"&&S.user){S.user=null;render();}});
+    return;}
   let db=null;try{db=window.claude?await window.claude.use("db"):null;}catch(e){db=null;}
   if(db){S.db=db;S.mode="db";const got=new Set();
     COLS.forEach(c=>{try{db.collection(c).onSnapshot(s=>{S[c]=s.docs.map(d=>({id:d.id,...JSON.parse(JSON.stringify(d.data()))}));got.add(c);if(c==="pengaturan"&&!S.loadedPengaturan){S.loadedPengaturan=true;render();}if(got.size===COLS.length&&S.mode==="db")afterData();else scheduleRender();},err=>{console.error(err);toast("Sambungan data terputus. Muat ulang halaman.");});}catch(e){console.error(e);}});
