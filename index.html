@@ -1154,7 +1154,7 @@ const blankCart=()=>({notaId:null,no:null,pelangganId:"",namaBebas:"",items:[],k
 const CART={pemilik:blankCart(),admin:blankCart()};
 const DEF_AKUN=[{id:"u-kasir",nama:"Kasir",username:"kasir",pin:"1234",peran:"pemilik",aktif:true}];
 S.user=null;S.login={u:"",pin:"",err:""};S.akunEdit=null;let SIMPAN_USER=null;try{SIMPAN_USER=localStorage.getItem("tkl-user");}catch(e){}
-const VIEWS={pos:"Kasir POS",hutang:"Hutang",riwayat:"Riwayat",laporan:"Laporan",produk:"Produk",pelanggan:"Pelanggan",pengaturan:"Pengaturan"};
+const VIEWS={pos:"Kasir POS",hutang:"Hutang Pelanggan",riwayat:"Riwayat",laporan:"Laporan",produk:"Produk",pelanggan:"Pelanggan",pengaturan:"Pengaturan"};
 const ROLE_VIEWS={admin:["pos"],pemilik:["pos","hutang","lappenj","laporan","produk","pelanggan","pengaturan"]};
 
 /* ================= helper ================= */
@@ -1230,7 +1230,7 @@ function afterData(){autoSlip();scheduleRender();}
 
 const IKON={keranjang:'M3 4h2l2.4 11h11.2L21 7H6.2M9 20a1 1 0 1 0 0-.01M18 20a1 1 0 1 0 0-.01',kasbon:'M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3zM5 17a3 3 0 0 1 3-3h11M9 8h6',riwayat:'M12 7v5l3 2M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5',laporan:'M4 20V10M10 20V4M16 20v-8M22 20H2',produk:'M3 12V3h9l9 9-9 9zM7.5 7.5v.01',kontak:'M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM2 21a7 7 0 0 1 14 0M16 3.5a4 4 0 0 1 0 7.5M18 14a7 7 0 0 1 4 7',pengaturan:'M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-2.9 1.2V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-2.9-1.2l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0-1.2-2.9H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.2-2.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 2.9-1.2V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 2.9 1.2l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0 1.2 2.9H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z',lainnya:'M5 12h.01M12 12h.01M19 12h.01'};
 const ikon=(n,u=20)=>`<svg width="${u}" height="${u}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${IKON[n]||IKON.lainnya}"/></svg>`;
-const MODES={kasir:{judul:"Kasir",menu:[{v:"pos",judul:"Kasir",ikon:"keranjang"},{v:"hutang",judul:"Hutang",ikon:"kasbon",owner:1},{v:"lappenj",judul:"Laporan Penjualan",ikon:"laporan",owner:1}]},
+const MODES={kasir:{judul:"Kasir",menu:[{v:"pos",judul:"Kasir",ikon:"keranjang"},{v:"hutang",judul:"Hutang Pelanggan",ikon:"kasbon",owner:1},{v:"lappenj",judul:"Laporan Penjualan",ikon:"laporan",owner:1}]},
   office:{judul:"Back Office",menu:[{v:"laporan",judul:"Laporan",ikon:"laporan"},{v:"produk",judul:"Produk",ikon:"produk"},{v:"pelanggan",judul:"Pelanggan",ikon:"kontak"},{v:"pengaturan",judul:"Pengaturan",ikon:"pengaturan"}]}};
 const modeOf=v=>["pos","hutang","lappenj"].includes(v)?"kasir":"office";
 let CIUT=false;try{CIUT=localStorage.getItem("tkl-ciut")==="1";}catch(e){}
