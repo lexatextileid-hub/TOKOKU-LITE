@@ -88,7 +88,8 @@ Kepala: nama toko, no. nota, **nama pelanggan** (dan alamat bila diantar), jam. 
 
 - **Tanpa batas hutang** dan **tanpa tempo bayar**. Yang ditampilkan cukup tanggal nota tertua.
 - **Pelanggan baru dari kasir boleh langsung hutang.** Pembeli yang tidak terdaftar (nama ketik bebas atau "-") harus bayar lunas.
-- **Daftar hutang**: satu baris per pelanggan (sisa hutang, jumlah nota belum lunas, tanggal nota tertua). Kartu ringkasan: total hutang semua pelanggan, jumlah pelanggan berhutang.
+- Menu di mode Kasir bernama **Hutang Pelanggan** (supaya tidak tertukar dengan hutang toko).
+- **Daftar hutang**: satu baris per pelanggan (nama, jumlah nota belum lunas, sisa hutang). Klik nama → baris terbuka menampilkan nota yang masih hutang (no. nota bisa dibuka, tanggal, umur — merah bila > 30 hari, hutang, sudah dibayar, sisa, tombol Bayar per nota) dan aksi: Riwayat bayar · Lunasi semua · Terima pembayaran. Di HP nota tampil sebagai kartu. Kartu ringkasan: total hutang, pelanggan berhutang, hutang baru & dibayar (periode), nota tertua.
 - **Bayar hutang** (pola "terima pembayaran"): daftar nota belum lunas dengan centang dan kolom bayar; ketik jumlah → menutup nota tertua dulu, atau centang nota tertentu. Tunai atau transfer (nama bank sebagai keterangan). Status nota: Belum lunas → Sebagian → Lunas.
 - Bisa **bayar hutang sekalian belanja** di dialog Bayar (diambil dari tunai dulu).
 - **Hutang lama** (sebelum memakai aplikasi): tanpa rincian barang — pelanggan, tanggal, jumlah, keterangan. Hanya pemilik.
