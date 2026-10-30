@@ -1628,14 +1628,14 @@ function kalHari(o,act){const c=S.ppCal;const [y,m]=c.ym.split("-").map(Number);
   <p class="kal__bantu">${c.mulai?`Mulai ${tgl(c.mulai+"T00:00")} · ketuk tanggal akhir (ketuk lagi tanggal yang sama untuk satu hari)`:"Ketuk tanggal awal, lalu tanggal akhir."}</p>`;}
 function periodeBO(aksi){return `<div class="bo-bilah">${periodCtl(S.lap,"lapp")}${aksi?`<div class="baris-tombol">${aksi}</div>`:""}</div>`;}
 /* ================= Impor produk dari Excel ================= */
-const IMPOR_KOLOM=["Nama barang*","Kategori*","Kode cepat","Satuan dasar*","Harga beli","Harga jual*","Satuan besar 1","Isi 1 (dalam satuan dasar)","Harga beli 1","Harga jual 1","Satuan besar 2","Isi 2 (dalam satuan dasar)","Harga beli 2","Harga jual 2","Grosir mulai (jumlah satuan dasar)","Harga grosir per satuan dasar","Grosir 2 mulai","Harga grosir 2","Jenis rokok"];
+const IMPOR_KOLOM=["Nama barang*","Kategori*","Kode cepat","Satuan dasar*","Harga beli","Harga jual*","Satuan besar 1","Isi 1 (dalam satuan dasar)","Harga beli 1","Harga jual 1","Satuan besar 2","Isi 2 (dalam satuan dasar)","Harga beli 2","Harga jual 2","Grosir mulai (jumlah satuan dasar)","Harga grosir per satuan dasar","Grosir 2 mulai","Harga grosir 2","Jenis rokok","Link foto (opsional)"];
 function muatExcelJS(){if(window.ExcelJS)return Promise.resolve();return new Promise((ok,no)=>{const sc=document.createElement("script");sc.src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js";sc.onload=()=>ok();sc.onerror=()=>no(new Error("Gagal memuat pustaka Excel. Periksa koneksi internet."));document.head.appendChild(sc);});}
 async function unduhTemplate(){
   await muatExcelJS();const st=setting();const wb=new window.ExcelJS.Workbook();
   const ws=wb.addWorksheet("Produk",{views:[{state:"frozen",ySplit:1}]});const dl=wb.addWorksheet("Daftar");const pt=wb.addWorksheet("Petunjuk");
   for(let c=1;c<=IMPOR_KOLOM.length;c++)ws.getColumn(c).font={name:"Arial",size:11};
   ws.addRow(IMPOR_KOLOM);const h=ws.getRow(1);h.font={name:"Arial",bold:true,color:{argb:"FFFFFFFF"}};h.fill={type:"pattern",pattern:"solid",fgColor:{argb:"FF1E5BD8"}};h.alignment={vertical:"middle",wrapText:true};h.height=32;
-  [34,24,12,14,12,12,14,14,12,12,14,14,12,12,16,16,12,12,16].forEach((w,i)=>ws.getColumn(i+1).width=w);
+  [34,24,12,14,12,12,14,14,12,12,14,14,12,12,16,16,12,12,16,40].forEach((w,i)=>ws.getColumn(i+1).width=w);
   const ex=ws.addRow(["Contoh: Indomie Goreng 85 g","Mi & Makanan Instan","IMG","Pcs",3050,3500,"Karton",40,118000,128000]);ex.font={name:"Arial",italic:true,color:{argb:"FF7A8396"}};
   dl.addRow(["Kategori","Satuan"]);dl.getRow(1).font={name:"Arial",bold:true};const nk=st.kategori.length,ns=st.satuan.length;
   for(let i=0;i<Math.max(nk,ns);i++)dl.addRow([st.kategori[i]?.nama||null,st.satuan[i]||null]);dl.getColumn(1).width=30;dl.getColumn(2).width=16;
@@ -1643,7 +1643,7 @@ async function unduhTemplate(){
   for(let r=2;r<=1001;r++){ws.getCell(`B${r}`).dataValidation={type:"list",allowBlank:true,formulae:[lk],showErrorMessage:true,errorTitle:"Kategori",error:"Pilih kategori dari daftar."};
     ws.getCell(`S${r}`).dataValidation={type:"list",allowBlank:true,formulae:['"Kretek,Filter,Mild,Putih"'],showErrorMessage:true,errorTitle:"Jenis rokok",error:"Pilih Kretek, Filter, Mild, atau Putih (khusus kategori Rokok)."};
     ["D","G","K"].forEach(c=>ws.getCell(`${c}${r}`).dataValidation={type:"list",allowBlank:true,formulae:[ls],showErrorMessage:true,errorTitle:"Satuan",error:"Pilih satuan dari daftar."});}
-  [["Cara mengisi template produk TOKOKU Lite"],[""],["1. Isi satu barang per baris di sheet Produk, mulai baris 3. Baris 2 adalah contoh dan tidak ikut diimpor."],["2. Kolom bertanda * wajib diisi. Kategori dan semua kolom Satuan dipilih dari dropdown."],["3. SKU tidak perlu diisi; dibuat otomatis oleh aplikasi (kode kategori + nomor urut)."],["4. Harga diisi angka saja tanpa Rp dan titik, mis. 3500."],["5. Satuan besar opsional. Isi = berapa satuan dasar dalam satu satuan besar, mis. Karton isi 40 Pcs."],["6. Grosir opsional: harga per satuan dasar turun mulai jumlah tertentu, mis. mulai 5 → 18000."],["6b. Kolom Jenis rokok hanya untuk kategori Rokok: Kretek (tanpa filter), Filter (full flavor), Mild, atau Putih (tanpa cengkih)."],["7. Simpan, lalu di aplikasi: Back Office → Produk → Impor Excel → pilih file ini."],["8. Barang yang namanya sudah ada di aplikasi dilewati, kecuali dicentang \"Perbarui harga barang yang sudah ada\"."],["9. Kategori atau satuan baru ditambah dulu di Pengaturan, lalu unduh template lagi."]].forEach(r=>pt.addRow(r));
+  [["Cara mengisi template produk TOKOKU Lite"],[""],["1. Isi satu barang per baris di sheet Produk, mulai baris 3. Baris 2 adalah contoh dan tidak ikut diimpor."],["2. Kolom bertanda * wajib diisi. Kategori dan semua kolom Satuan dipilih dari dropdown."],["3. SKU tidak perlu diisi; dibuat otomatis oleh aplikasi (kode kategori + nomor urut)."],["4. Harga diisi angka saja tanpa Rp dan titik, mis. 3500."],["5. Satuan besar opsional. Isi = berapa satuan dasar dalam satu satuan besar, mis. Karton isi 40 Pcs."],["6. Grosir opsional: harga per satuan dasar turun mulai jumlah tertentu, mis. mulai 5 → 18000."],["6b. Kolom Jenis rokok hanya untuk kategori Rokok: Kretek (tanpa filter), Filter (full flavor), Mild, atau Putih (tanpa cengkih)."],["6c. Link foto opsional: alamat gambar (https://…) dari situs resmi; bisa juga difoto langsung di aplikasi."],["7. Simpan, lalu di aplikasi: Back Office → Produk → Impor Excel → pilih file ini."],["8. Barang yang namanya sudah ada di aplikasi dilewati, kecuali dicentang \"Perbarui harga barang yang sudah ada\"."],["9. Kategori atau satuan baru ditambah dulu di Pengaturan, lalu unduh template lagi."]].forEach(r=>pt.addRow(r));
   pt.getColumn(1).width=110;pt.getRow(1).font={name:"Arial",bold:true,size:13};
   const buf=await wb.xlsx.writeBuffer();const url=URL.createObjectURL(new Blob([buf],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}));
   const a=document.createElement("a");a.href=url;a.download="template-produk-tokoku-lite.xlsx";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),4000);
@@ -1665,9 +1665,10 @@ async function bacaImpor(file){
     satuan.sort((a,b)=>a.isi-b.isi);satuan.forEach((x,k)=>x.rel=k?x.isi/satuan[k-1].isi:1);
     if(new Set(satuan.map(x=>x.nama+"|"+x.isi)).size!==satuan.length)err.push("ada satuan yang sama dua kali");
     const tingkat=[[15,16],[17,18]].map(([a,b])=>({min:qn(v(a)),harga:angkaSel(v(b))})).filter(t=>t.min>0&&t.harga>0).sort((a,b)=>a.min-b.min);
+    const lf=String(v(20)).trim();const foto=/^https?:\/\/\S+$/i.test(lf)?lf:"";if(lf&&!foto)err.push("link foto harus diawali https://");
     const jr=String(v(19)).trim();const jenis=JENIS.find(j=>norm(j)===norm(jr))||"";if(jr&&!jenis)err.push(`jenis "${jr}" tidak dikenal`);
     const kunci=norm(nama);if(diFile.has(kunci))err.push("nama ganda di file");diFile.add(kunci);
-    rows.push({baris:i,nama,kategori:kn||String(v(2)),kode:String(v(3)).trim(),satuan,tingkat,jenis:punyaJenis(kn)?jenis:"",err,lama:ada.get(kunci)||null});});
+    rows.push({baris:i,nama,kategori:kn||String(v(2)),kode:String(v(3)).trim(),satuan,tingkat,jenis:punyaJenis(kn)?jenis:"",foto,err,lama:ada.get(kunci)||null});});
   return rows;
 }
 function mImpor(m){const I=S.imp||{};const rows=I.rows||[];const siap=rows.filter(r=>!r.err.length&&!r.lama).length,adaN=rows.filter(r=>!r.err.length&&r.lama).length,salah=rows.filter(r=>r.err.length).length;const n=siap+(I.perbarui?adaN:0);
@@ -1685,7 +1686,7 @@ async function putBanyak(c,docs){
   for(const d of docs)await put(c,d.id,d.data);}
 async function jalankanImpor(){const I=S.imp;const rows=I.rows.filter(r=>!r.err.length&&(!r.lama||I.perbarui));if(!rows.length)return;I.jalan=true;renderModal();
   const maks={};S.produk.forEach(p=>{const [k,n]=(p.sku||"").split("-");if(k&&n)maks[k]=Math.max(maks[k]||0,parseInt(n)||0);});
-  const docs=rows.map(r=>{const base={nama:r.nama,kategori:r.kategori,kode:r.kode,satuan:r.satuan,tingkat:r.tingkat,aktif:true,diubah:now()};if(r.jenis)base.jenis=r.jenis;
+  const docs=rows.map(r=>{const base={nama:r.nama,kategori:r.kategori,kode:r.kode,satuan:r.satuan,tingkat:r.tingkat,aktif:true,diubah:now()};if(r.jenis)base.jenis=r.jenis;if(r.foto){base.foto=r.foto;base.fotoPath="";}
     if(r.lama){const o=JSON.parse(JSON.stringify(r.lama));delete o.id;return{id:r.lama.id,data:{...o,...base,sku:r.lama.sku,kode:r.kode||r.lama.kode||""}};}
     const k=katKode(r.kategori);maks[k]=(maks[k]||0)+1;return{id:uid(),data:{...base,sku:k+"-"+String(maks[k]).padStart(5,"0")}};});
   try{await putBanyak("produk",docs);}catch(e){I.jalan=false;fail(e);renderModal();return;}
@@ -1854,7 +1855,8 @@ function vProdForm(){
   ${punyaJenis(e.kategori)?`<div class="field" style="flex:0 1 150px"><label for="pf-jenis">Jenis rokok</label><select id="pf-jenis" data-pf="jenis"><option value="">–</option>${JENIS.map(j=>`<option ${e.jenis===j?"selected":""}>${j}</option>`).join("")}</select></div>`:""}<div class="field" style="flex:0 1 150px"><label for="pf-kode">Kode cepat</label><input id="pf-kode" data-pf="kode" value="${esc(e.kode||"")}" placeholder="opsional"></div></div>
   <div class="foto-form"><div class="foto-form__gambar">${e.foto?`<img src="${esc(e.foto)}" alt="Foto ${esc(e.nama)}">`:`<span>Belum ada foto</span>`}</div>
    <div class="foto-form__aksi"><b>Foto barang</b><span class="hint">Foto kemasan dari depan supaya kasir tidak salah ambil.</span>
-   <div class="row">${S.fotoSibuk==="form"?`<span class="teks-pudar">Menyimpan foto…</span>`:`<label class="btn sm">📷 Ambil foto<input type="file" accept="image/*" capture="environment" data-fotoform="1" hidden></label><label class="btn sm">Pilih dari galeri<input type="file" accept="image/*" data-fotoform="1" hidden></label>${e.foto?`<button class="btn sm" data-act="fotohapus">Hapus foto</button>`:""}`}</div></div></div>
+   <div class="row">${S.fotoSibuk==="form"?`<span class="teks-pudar">Menyimpan foto…</span>`:`<label class="btn sm">📷 Ambil foto<input type="file" accept="image/*" capture="environment" data-fotoform="1" hidden></label><label class="btn sm">Pilih dari galeri<input type="file" accept="image/*" data-fotoform="1" hidden></label><button class="btn sm" data-act="fotolinkbuka">🔗 Tempel link gambar</button>${e.foto?`<button class="btn sm" data-act="fotohapus">Hapus foto</button>`:""}`}</div>
+   ${S.fotoLink?`<div class="row" style="align-items:center"><input id="pf-fotolink" type="url" placeholder="https://… (salin alamat gambar dari situs resmi)" style="flex:1 1 240px"><button class="btn sm primary" data-act="fotolinkpakai">Pakai</button><button class="btn sm" data-act="fotolinkbuka">Batal</button></div><span class="hint">Di HP: buka gambar di situs, tekan lama → "Salin alamat gambar", lalu tempel di sini.</span>`:""}</div></div>
   <div><h2>Satuan & harga</h2><p class="hint">Baris pertama = satuan terkecil yang dijual. Satuan besar ditulis isinya dalam satuan di atasnya.</p></div>
   <div class="tw" style="border:0"><table class="ftable"><thead><tr><th>Satuan</th><th>Isi</th><th class="n">Harga beli</th><th class="n">Harga jual</th><th class="n">Untung %</th><th>Per ${esc(d)}</th><th></th></tr></thead><tbody>
   ${e.satuan.map((s,i)=>`<tr><td><select data-sf="nama" data-i="${i}" aria-label="Satuan" style="min-width:110px">${st.satuan.map(x=>`<option ${x===s.nama?"selected":""}>${esc(x)}</option>`).join("")}</select></td>
@@ -2214,8 +2216,11 @@ const ACT={
   /* produk */
   newprod(){S.view="produk";S.edit={id:null,sku:"",nama:"",kategori:setting().kategori[0].nama,kode:"",satuan:[{nama:"Pcs",rel:1,beli:"",jual:""}],tingkat:[],aktif:true};render();setTimeout(()=>$("#pf-nama")?.focus(),0);},
   editprod(b){const p=prod(b.dataset.id);S.edit=JSON.parse(JSON.stringify({...p,satuan:p.satuan.map((s,i)=>({...s,rel:i?(s.rel||s.isi/p.satuan[i-1].isi):1})),tingkat:p.tingkat||[]}));render();window.scrollTo(0,0);},
-  cancelprod(){S.edit=null;render();},
+  cancelprod(){S.edit=null;S.fotoLink=false;render();},
   fotohapus(){S.edit.foto="";S.edit.fotoPath="";render();},
+  fotolinkbuka(){S.fotoLink=!S.fotoLink;render();if(S.fotoLink)setTimeout(()=>$("#pf-fotolink")?.focus(),30);},
+  fotolinkpakai(){const u=($("#pf-fotolink")?.value||"").trim();if(!/^https?:\/\/\S+$/i.test(u)){toast("Tempel link gambar yang diawali https://");return;}
+    const img=new Image();img.onload=()=>{S.edit.foto=u;S.edit.fotoPath="";S.fotoLink=false;render();toast("Gambar dipakai. Jangan lupa Simpan produk.");};img.onerror=()=>toast("Gambar tidak bisa dibuka dari link itu. Coba link lain, atau simpan gambarnya lalu pakai Pilih dari galeri.");img.src=u;},
   addsatrow(){const e=S.edit;e.satuan.push({nama:"Karton",rel:"",beli:"",jual:""});render();},
   rmsat(b){S.edit.satuan.splice(+b.dataset.i,1);render();},
   addtier(){S.edit.tingkat.push({min:"",harga:""});render();},
