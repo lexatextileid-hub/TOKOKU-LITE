@@ -1000,6 +1000,7 @@ tfoot td{font-weight:700;border-top:1px solid var(--garis);border-bottom:0;paddi
 .list{display:flex;flex-direction:column;gap:8px}
 .prow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;border:1px solid var(--garis);border-radius:var(--radius-besar);padding:12px 16px;background:var(--permukaan)}
 label.btn{text-transform:none;letter-spacing:0;color:var(--teks)}label.centang{text-transform:none;letter-spacing:0;font-size:14px;font-weight:500;color:var(--teks)}
+.pj__kategori .pj__sub{font-size:12.5px;padding-inline:10px;border-style:dashed}.pj__kategori .pj__sub[aria-pressed="true"]{border-style:solid}
 .prow__isi{display:flex;gap:12px;align-items:center;min-width:0}
 .pfoto{flex:none;width:64px;height:64px;border-radius:10px;border:1px solid var(--garis);background:#fff;display:grid;place-items:center;overflow:hidden;cursor:pointer}
 .pfoto img{width:100%;height:100%;object-fit:contain}.pfoto--kosong{border-style:dashed;background:var(--permukaan-2);color:var(--teks-3);font-size:11.5px;text-align:center;line-height:1.3}
@@ -1152,6 +1153,7 @@ button.kk-mini__item{cursor:pointer}button.kk-mini__item:hover{border-color:var(
 <script>
 /* ================= konstanta & state ================= */
 const DEF_KAT=[["Sembako","SMB"],["Bumbu Dapur","BMB"],["Mi & Makanan Instan","MIN"],["Makanan Ringan","SNK"],["Susu","SSU"],["Minuman","MNM"],["Rokok","RKK"],["Perawatan Diri","PRD"],["Kebersihan Rumah","KBR"],["Perlengkapan Rumah Tangga","RTG"],["Gas & Air Galon","GAS"],["Perlengkapan Bayi","BYI"],["Obat & Kesehatan","OBT"],["Bawang & Umbi","UMB"],["Rempah Kering","RMP"],["Alat Tulis","ATK"],["Pakan Hewan","PKN"],["Lain-lain","LLN"]].map(([nama,kode])=>({nama,kode}));
+const JENIS=["Kretek","Filter"];const punyaJenis=k=>k==="Rokok";
 const DEF_SAT=["Pcs","Bungkus","Sachet","Renteng","Pak","Slop","Bal","Karton","Boks","Lusin","Karung","Kilogram","Gram","Liter","Mililiter","Botol","Kaleng","Galon","Tabung","Krat","Tray","Butir","Ikat","Lembar"];
 const KET=["Barang kosong","Stok kurang","Pembeli batal","Ganti barang","Salah input","Lainnya"];
 const ALASAN_RETUR=["Rusak / bocor","Kedaluwarsa","Salah barang","Tidak jadi","Lainnya"];
@@ -1305,7 +1307,7 @@ function posJual(){
   const kats=setting().kategori.filter(k=>S.produk.some(p=>p.aktif!==false&&p.kategori===k.nama));const c=cart();
   return `<div class="pj ${S.cartOpen?"pj--keranjang-buka":""}"><section class="pj__barang" aria-label="Daftar barang">
    <label class="pj__cari-kotak"><span class="sr">Cari barang</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="posq" data-posq="1" value="${esc(S.q)}" placeholder="Cari nama, SKU, kode" autocomplete="off"></label>
-   <div class="pj__kategori" role="group" aria-label="Kategori"><button data-act="cat" data-c="" aria-pressed="${!S.cat}">Semua</button>${kats.map(k=>`<button data-act="cat" data-c="${esc(k.nama)}" aria-pressed="${S.cat===k.nama}">${esc(k.nama)}</button>`).join("")}</div>
+   <div class="pj__kategori" role="group" aria-label="Kategori"><button data-act="cat" data-c="" aria-pressed="${!S.cat}">Semua</button>${kats.map(k=>{const js=JENIS.filter(j=>S.produk.some(p=>p.aktif!==false&&p.kategori===k.nama&&p.jenis===j));return `<button data-act="cat" data-c="${esc(k.nama)}" aria-pressed="${S.cat===k.nama}">${esc(k.nama)}</button>`+js.map(j=>`<button class="pj__sub" data-act="cat" data-c="${esc(k.nama+"|"+j)}" aria-pressed="${S.cat===k.nama+"|"+j}">${esc(j)}</button>`).join("");}).join("")}</div>
    <div class="pj__grid" id="grid">${gridHTML()}</div>
   </section><aside class="pj__keranjang" id="cartbox" aria-label="Keranjang">${cartInner()}</aside>
   <div class="pj__ringkas-hp"><button class="pj__ringkas-tombol" data-act="cartopen"><span>${c.items.length} barang · ${esc(custName(c))}</span><strong>${rp(cartTotal(c))}</strong><span class="pj__ringkas-lihat">Lihat keranjang →</span></button></div></div>`;
@@ -1313,7 +1315,7 @@ function posJual(){
 function gridHTML(){
   if(!S.produk.length)return `<p class="pj__kosong">Belum ada produk. ${owner()?`<button class="btn sm primary" data-act="contoh">Muat contoh data</button>`:"Minta pemilik mengisi data produk."}</p>`;
   const q=S.q.trim().toLowerCase();const w=q.split(/\s+/).filter(Boolean);
-  const list=S.produk.filter(p=>p.aktif!==false&&(!S.cat||p.kategori===S.cat)&&w.every(x=>(p.nama+" "+p.sku+" "+(p.kode||"")).toLowerCase().includes(x))).sort(byNama);
+  const [ck,cj]=(S.cat||"").split("|");const list=S.produk.filter(p=>p.aktif!==false&&(!ck||p.kategori===ck)&&(!cj||p.jenis===cj)&&w.every(x=>(p.nama+" "+p.sku+" "+(p.kode||"")).toLowerCase().includes(x))).sort(byNama);
   if(!list.length)return `<p class="pj__kosong">Barang tidak ditemukan. Barang yang belum terdaftar tidak bisa dijual; pemilik bisa menambahkannya di Produk.</p>`;
   const jml={};cart().items.forEach(i=>{jml[i.pid]=(jml[i.pid]||0)+i.qty*i.isi;});
   return list.map(p=>{const s=p.satuan[0];const t=(p.tingkat||[]).length;
@@ -1625,21 +1627,22 @@ function kalHari(o,act){const c=S.ppCal;const [y,m]=c.ym.split("-").map(Number);
   <p class="kal__bantu">${c.mulai?`Mulai ${tgl(c.mulai+"T00:00")} · ketuk tanggal akhir (ketuk lagi tanggal yang sama untuk satu hari)`:"Ketuk tanggal awal, lalu tanggal akhir."}</p>`;}
 function periodeBO(aksi){return `<div class="bo-bilah">${periodCtl(S.lap,"lapp")}${aksi?`<div class="baris-tombol">${aksi}</div>`:""}</div>`;}
 /* ================= Impor produk dari Excel ================= */
-const IMPOR_KOLOM=["Nama barang*","Kategori*","Kode cepat","Satuan dasar*","Harga beli","Harga jual*","Satuan besar 1","Isi 1 (dalam satuan dasar)","Harga beli 1","Harga jual 1","Satuan besar 2","Isi 2 (dalam satuan dasar)","Harga beli 2","Harga jual 2","Grosir mulai (jumlah satuan dasar)","Harga grosir per satuan dasar","Grosir 2 mulai","Harga grosir 2"];
+const IMPOR_KOLOM=["Nama barang*","Kategori*","Kode cepat","Satuan dasar*","Harga beli","Harga jual*","Satuan besar 1","Isi 1 (dalam satuan dasar)","Harga beli 1","Harga jual 1","Satuan besar 2","Isi 2 (dalam satuan dasar)","Harga beli 2","Harga jual 2","Grosir mulai (jumlah satuan dasar)","Harga grosir per satuan dasar","Grosir 2 mulai","Harga grosir 2","Jenis rokok (Kretek/Filter)"];
 function muatExcelJS(){if(window.ExcelJS)return Promise.resolve();return new Promise((ok,no)=>{const sc=document.createElement("script");sc.src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js";sc.onload=()=>ok();sc.onerror=()=>no(new Error("Gagal memuat pustaka Excel. Periksa koneksi internet."));document.head.appendChild(sc);});}
 async function unduhTemplate(){
   await muatExcelJS();const st=setting();const wb=new window.ExcelJS.Workbook();
   const ws=wb.addWorksheet("Produk",{views:[{state:"frozen",ySplit:1}]});const dl=wb.addWorksheet("Daftar");const pt=wb.addWorksheet("Petunjuk");
   for(let c=1;c<=IMPOR_KOLOM.length;c++)ws.getColumn(c).font={name:"Arial",size:11};
   ws.addRow(IMPOR_KOLOM);const h=ws.getRow(1);h.font={name:"Arial",bold:true,color:{argb:"FFFFFFFF"}};h.fill={type:"pattern",pattern:"solid",fgColor:{argb:"FF1E5BD8"}};h.alignment={vertical:"middle",wrapText:true};h.height=32;
-  [34,24,12,14,12,12,14,14,12,12,14,14,12,12,16,16,12,12].forEach((w,i)=>ws.getColumn(i+1).width=w);
+  [34,24,12,14,12,12,14,14,12,12,14,14,12,12,16,16,12,12,16].forEach((w,i)=>ws.getColumn(i+1).width=w);
   const ex=ws.addRow(["Contoh: Indomie Goreng 85 g","Mi & Makanan Instan","IMG","Pcs",3050,3500,"Karton",40,118000,128000]);ex.font={name:"Arial",italic:true,color:{argb:"FF7A8396"}};
   dl.addRow(["Kategori","Satuan"]);dl.getRow(1).font={name:"Arial",bold:true};const nk=st.kategori.length,ns=st.satuan.length;
   for(let i=0;i<Math.max(nk,ns);i++)dl.addRow([st.kategori[i]?.nama||null,st.satuan[i]||null]);dl.getColumn(1).width=30;dl.getColumn(2).width=16;
   const lk=`Daftar!$A$2:$A$${nk+1}`,ls=`Daftar!$B$2:$B$${ns+1}`;
   for(let r=2;r<=1001;r++){ws.getCell(`B${r}`).dataValidation={type:"list",allowBlank:true,formulae:[lk],showErrorMessage:true,errorTitle:"Kategori",error:"Pilih kategori dari daftar."};
+    ws.getCell(`S${r}`).dataValidation={type:"list",allowBlank:true,formulae:['"Kretek,Filter"'],showErrorMessage:true,errorTitle:"Jenis rokok",error:"Pilih Kretek atau Filter (khusus kategori Rokok)."};
     ["D","G","K"].forEach(c=>ws.getCell(`${c}${r}`).dataValidation={type:"list",allowBlank:true,formulae:[ls],showErrorMessage:true,errorTitle:"Satuan",error:"Pilih satuan dari daftar."});}
-  [["Cara mengisi template produk TOKOKU Lite"],[""],["1. Isi satu barang per baris di sheet Produk, mulai baris 3. Baris 2 adalah contoh dan tidak ikut diimpor."],["2. Kolom bertanda * wajib diisi. Kategori dan semua kolom Satuan dipilih dari dropdown."],["3. SKU tidak perlu diisi; dibuat otomatis oleh aplikasi (kode kategori + nomor urut)."],["4. Harga diisi angka saja tanpa Rp dan titik, mis. 3500."],["5. Satuan besar opsional. Isi = berapa satuan dasar dalam satu satuan besar, mis. Karton isi 40 Pcs."],["6. Grosir opsional: harga per satuan dasar turun mulai jumlah tertentu, mis. mulai 5 → 18000."],["7. Simpan, lalu di aplikasi: Back Office → Produk → Impor Excel → pilih file ini."],["8. Barang yang namanya sudah ada di aplikasi dilewati, kecuali dicentang \"Perbarui harga barang yang sudah ada\"."],["9. Kategori atau satuan baru ditambah dulu di Pengaturan, lalu unduh template lagi."]].forEach(r=>pt.addRow(r));
+  [["Cara mengisi template produk TOKOKU Lite"],[""],["1. Isi satu barang per baris di sheet Produk, mulai baris 3. Baris 2 adalah contoh dan tidak ikut diimpor."],["2. Kolom bertanda * wajib diisi. Kategori dan semua kolom Satuan dipilih dari dropdown."],["3. SKU tidak perlu diisi; dibuat otomatis oleh aplikasi (kode kategori + nomor urut)."],["4. Harga diisi angka saja tanpa Rp dan titik, mis. 3500."],["5. Satuan besar opsional. Isi = berapa satuan dasar dalam satu satuan besar, mis. Karton isi 40 Pcs."],["6. Grosir opsional: harga per satuan dasar turun mulai jumlah tertentu, mis. mulai 5 → 18000."],["6b. Kolom Jenis rokok hanya untuk kategori Rokok: pilih Kretek atau Filter (rokok putih ikut Filter)."],["7. Simpan, lalu di aplikasi: Back Office → Produk → Impor Excel → pilih file ini."],["8. Barang yang namanya sudah ada di aplikasi dilewati, kecuali dicentang \"Perbarui harga barang yang sudah ada\"."],["9. Kategori atau satuan baru ditambah dulu di Pengaturan, lalu unduh template lagi."]].forEach(r=>pt.addRow(r));
   pt.getColumn(1).width=110;pt.getRow(1).font={name:"Arial",bold:true,size:13};
   const buf=await wb.xlsx.writeBuffer();const url=URL.createObjectURL(new Blob([buf],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}));
   const a=document.createElement("a");a.href=url;a.download="template-produk-tokoku-lite.xlsx";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),4000);
@@ -1661,8 +1664,9 @@ async function bacaImpor(file){
     satuan.sort((a,b)=>a.isi-b.isi);satuan.forEach((x,k)=>x.rel=k?x.isi/satuan[k-1].isi:1);
     if(new Set(satuan.map(x=>x.nama+"|"+x.isi)).size!==satuan.length)err.push("ada satuan yang sama dua kali");
     const tingkat=[[15,16],[17,18]].map(([a,b])=>({min:qn(v(a)),harga:angkaSel(v(b))})).filter(t=>t.min>0&&t.harga>0).sort((a,b)=>a.min-b.min);
+    const jr=String(v(19)).trim();const jenis=JENIS.find(j=>norm(j)===norm(jr))||"";if(jr&&!jenis)err.push(`jenis "${jr}" tidak dikenal`);
     const kunci=norm(nama);if(diFile.has(kunci))err.push("nama ganda di file");diFile.add(kunci);
-    rows.push({baris:i,nama,kategori:kn||String(v(2)),kode:String(v(3)).trim(),satuan,tingkat,err,lama:ada.get(kunci)||null});});
+    rows.push({baris:i,nama,kategori:kn||String(v(2)),kode:String(v(3)).trim(),satuan,tingkat,jenis:punyaJenis(kn)?jenis:"",err,lama:ada.get(kunci)||null});});
   return rows;
 }
 function mImpor(m){const I=S.imp||{};const rows=I.rows||[];const siap=rows.filter(r=>!r.err.length&&!r.lama).length,adaN=rows.filter(r=>!r.err.length&&r.lama).length,salah=rows.filter(r=>r.err.length).length;const n=siap+(I.perbarui?adaN:0);
@@ -1680,7 +1684,7 @@ async function putBanyak(c,docs){
   for(const d of docs)await put(c,d.id,d.data);}
 async function jalankanImpor(){const I=S.imp;const rows=I.rows.filter(r=>!r.err.length&&(!r.lama||I.perbarui));if(!rows.length)return;I.jalan=true;renderModal();
   const maks={};S.produk.forEach(p=>{const [k,n]=(p.sku||"").split("-");if(k&&n)maks[k]=Math.max(maks[k]||0,parseInt(n)||0);});
-  const docs=rows.map(r=>{const base={nama:r.nama,kategori:r.kategori,kode:r.kode,satuan:r.satuan,tingkat:r.tingkat,aktif:true,diubah:now()};
+  const docs=rows.map(r=>{const base={nama:r.nama,kategori:r.kategori,kode:r.kode,satuan:r.satuan,tingkat:r.tingkat,aktif:true,diubah:now()};if(r.jenis)base.jenis=r.jenis;
     if(r.lama){const o=JSON.parse(JSON.stringify(r.lama));delete o.id;return{id:r.lama.id,data:{...o,...base,sku:r.lama.sku,kode:r.kode||r.lama.kode||""}};}
     const k=katKode(r.kategori);maks[k]=(maks[k]||0)+1;return{id:uid(),data:{...base,sku:k+"-"+String(maks[k]).padStart(5,"0")}};});
   try{await putBanyak("produk",docs);}catch(e){I.jalan=false;fail(e);renderModal();return;}
@@ -1839,14 +1843,14 @@ function prodList(){const J=S._J||{};const q=norm(S.prodQ);const F=S.lap.prodF;
   else list.sort((a,b)=>(a.aktif===false)-(b.aktif===false)||byNama(a,b));
   return list.length?list.map(prow).join(""):`<div class="empty"><b>${S.produk.length?"Tidak ada yang cocok":"Belum ada produk"}</b><span>${S.produk.length?"Coba ubah pencarian, kategori, atau periode.":"Tambah barang satu per satu, atau muat contoh data untuk mencoba."}</span></div>`;}
 function untung(s){if(!s.beli||!s.jual)return null;return{rp:s.jual-s.beli,pct:(s.jual-s.beli)/s.beli*100};}
-function prow(p){const d=p.satuan[0].nama;return `<div class="prow ${p.aktif===false?"off":""}"><div class="prow__isi">${owner()?`<label class="pfoto ${p.foto?"":"pfoto--kosong"}" title="${p.foto?"Ganti foto":"Ambil foto"}">${S.fotoSibuk===p.id?`<span>…</span>`:p.foto?fotoImg(p,""):`<span>📷<br>Foto</span>`}<input type="file" accept="image/*" capture="environment" data-fotocepat="${p.id}" hidden aria-label="Foto ${esc(p.nama)}"></label>`:p.foto?`<span class="pfoto">${fotoImg(p,"")}</span>`:""}<div><div class="pname">${esc(p.nama)}${p.contoh?'<span class="tag-c">contoh</span>':""}${p.aktif===false?' <span class="chip">nonaktif</span>':""}</div><div class="sku">${esc(p.sku)}${p.kode?" · kode "+esc(p.kode):""} · ${esc(p.kategori)}</div><div class="pmeta">${p.satuan.map((s,i)=>{const u=untung(s);const per=s.jual/s.isi;const warn=i>0&&per>p.satuan[i-1].jual/p.satuan[i-1].isi;return `<span class="chip ${warn?"bad":u&&u.pct<5?"warn":"blue"}">${warn?"⚠ ":""}${esc(s.nama)}${s.isi>1?" isi "+fq(s.isi)+" "+esc(d):""} · ${rp(s.jual)}${u?" · "+pctf(u.pct):""}</span>`;}).join("")}${p.tingkat?.length?`<span class="chip good">grosir ${p.tingkat.length} tingkat</span>`:""}</div></div><div class="prow__kanan">${(()=>{const x=(S._J||{})[p.id];return x?`<div class="lc-nilai"><strong>${rp(x.o)}</strong><span class="teks-pudar">terjual ${fq(x.q)} ${esc(d.toLowerCase())} · margin ${rp(x.m)}</span></div>`:`<div class="lc-nilai"><span class="teks-pudar">belum terjual di periode</span></div>`;})()}<button class="btn sm" data-act="editprod" data-id="${p.id}">Ubah</button></div></div></div>`;}
+function prow(p){const d=p.satuan[0].nama;return `<div class="prow ${p.aktif===false?"off":""}"><div class="prow__isi">${owner()?`<label class="pfoto ${p.foto?"":"pfoto--kosong"}" title="${p.foto?"Ganti foto":"Ambil foto"}">${S.fotoSibuk===p.id?`<span>…</span>`:p.foto?fotoImg(p,""):`<span>📷<br>Foto</span>`}<input type="file" accept="image/*" capture="environment" data-fotocepat="${p.id}" hidden aria-label="Foto ${esc(p.nama)}"></label>`:p.foto?`<span class="pfoto">${fotoImg(p,"")}</span>`:""}<div><div class="pname">${esc(p.nama)}${p.contoh?'<span class="tag-c">contoh</span>':""}${p.aktif===false?' <span class="chip">nonaktif</span>':""}</div><div class="sku">${esc(p.sku)}${p.kode?" · kode "+esc(p.kode):""} · ${esc(p.kategori)}${p.jenis?" "+esc(p.jenis):""}</div><div class="pmeta">${p.satuan.map((s,i)=>{const u=untung(s);const per=s.jual/s.isi;const warn=i>0&&per>p.satuan[i-1].jual/p.satuan[i-1].isi;return `<span class="chip ${warn?"bad":u&&u.pct<5?"warn":"blue"}">${warn?"⚠ ":""}${esc(s.nama)}${s.isi>1?" isi "+fq(s.isi)+" "+esc(d):""} · ${rp(s.jual)}${u?" · "+pctf(u.pct):""}</span>`;}).join("")}${p.tingkat?.length?`<span class="chip good">grosir ${p.tingkat.length} tingkat</span>`:""}</div></div><div class="prow__kanan">${(()=>{const x=(S._J||{})[p.id];return x?`<div class="lc-nilai"><strong>${rp(x.o)}</strong><span class="teks-pudar">terjual ${fq(x.q)} ${esc(d.toLowerCase())} · margin ${rp(x.m)}</span></div>`:`<div class="lc-nilai"><span class="teks-pudar">belum terjual di periode</span></div>`;})()}<button class="btn sm" data-act="editprod" data-id="${p.id}">Ubah</button></div></div></div>`;}
 function vProdForm(){
   const e=S.edit;const st=setting();const d=e.satuan[0]?.nama||"satuan dasar";
   return `<div><button class="back" data-act="cancelprod">← Daftar produk</button></div>
   <section class="panel"><div class="ph"><div><h1>${e.id?"Ubah produk":"Produk baru"}</h1><div class="sku">SKU ${esc(e.sku||newSku(e.kategori))} ${e.id?"(tetap)":"(otomatis)"}</div></div></div>
   <div class="row"><div class="field" style="flex:2 1 280px"><label for="pf-nama">Nama barang</label><input id="pf-nama" data-pf="nama" value="${esc(e.nama)}" placeholder="Nama sesuai kemasan, mis. Indomie Goreng 85 g"></div>
   <div class="field"><label for="pf-kat">Kategori</label><select id="pf-kat" data-pf="kategori" ${e.id?"":""}>${st.kategori.map(k=>`<option ${k.nama===e.kategori?"selected":""}>${esc(k.nama)}</option>`).join("")}</select></div>
-  <div class="field" style="flex:0 1 150px"><label for="pf-kode">Kode cepat</label><input id="pf-kode" data-pf="kode" value="${esc(e.kode||"")}" placeholder="opsional"></div></div>
+  ${punyaJenis(e.kategori)?`<div class="field" style="flex:0 1 150px"><label for="pf-jenis">Jenis rokok</label><select id="pf-jenis" data-pf="jenis"><option value="">–</option>${JENIS.map(j=>`<option ${e.jenis===j?"selected":""}>${j}</option>`).join("")}</select></div>`:""}<div class="field" style="flex:0 1 150px"><label for="pf-kode">Kode cepat</label><input id="pf-kode" data-pf="kode" value="${esc(e.kode||"")}" placeholder="opsional"></div></div>
   <div class="foto-form"><div class="foto-form__gambar">${e.foto?`<img src="${esc(e.foto)}" alt="Foto ${esc(e.nama)}">`:`<span>Belum ada foto</span>`}</div>
    <div class="foto-form__aksi"><b>Foto barang</b><span class="hint">Foto kemasan dari depan supaya kasir tidak salah ambil.</span>
    <div class="row">${S.fotoSibuk==="form"?`<span class="teks-pudar">Menyimpan foto…</span>`:`<label class="btn sm">📷 Ambil foto<input type="file" accept="image/*" capture="environment" data-fotoform="1" hidden></label><label class="btn sm">Pilih dari galeri<input type="file" accept="image/*" data-fotoform="1" hidden></label>${e.foto?`<button class="btn sm" data-act="fotohapus">Hapus foto</button>`:""}`}</div></div></div>
@@ -2033,7 +2037,7 @@ async function saveProd(){
   if(new Set(sat.map(s=>s.nama+"|"+s.isi)).size!==sat.length){toast("Ada satuan yang sama dua kali.");return;}
   const tingkat=e.tingkat.map(t=>({min:qn(t.min),harga:money(t.harga)})).filter(t=>t.min>0&&t.harga>0).sort((a,b)=>a.min-b.min);
   if(e.kode){const k=S.produk.find(p=>p.id!==e.id&&p.kode&&norm(p.kode)===norm(e.kode));if(k){toast("Kode cepat sudah dipakai "+k.nama+".");return;}}
-  const id=e.id||uid();const data={sku:e.sku||newSku(e.kategori),nama,kategori:e.kategori,kode:(e.kode||"").trim(),satuan:sat,tingkat,aktif:e.aktif!==false,diubah:now()};if(e.contoh)data.contoh=true;if(e.foto){data.foto=e.foto;data.fotoPath=e.fotoPath||"";}const lamaFoto=e.id&&prod(e.id)?.fotoPath;
+  const id=e.id||uid();const data={sku:e.sku||newSku(e.kategori),nama,kategori:e.kategori,kode:(e.kode||"").trim(),satuan:sat,tingkat,aktif:e.aktif!==false,diubah:now()};if(e.contoh)data.contoh=true;if(e.foto){data.foto=e.foto;data.fotoPath=e.fotoPath||"";}if(punyaJenis(e.kategori)&&e.jenis)data.jenis=e.jenis;const lamaFoto=e.id&&prod(e.id)?.fotoPath;
   try{await put("produk",id,data);}catch(err){fail(err);return;}if(lamaFoto&&lamaFoto!==data.fotoPath)buangFotoLama(lamaFoto);S.edit=null;toast("Produk "+data.sku+" disimpan.");render();
 }
 async function loadContoh(){
@@ -2272,7 +2276,8 @@ document.addEventListener("change",e=>{const t=e.target,d=t.dataset;
   if(d.hbon){S.modal.hbOn=t.checked;if(t.checked&&S.modal.met==="hutang")S.modal.met="tunai";refreshPay();return;}
   if(d.kurang){S.modal.kurang=d.kurang;refreshPay();return;}
   if(d.ket!==undefined){cart().items[+d.ket].ket=t.value;return;}
-  if(d.pf==="kategori"){S.edit.kategori=t.value;if(!S.edit.id)render();return;}
+  if(d.pf==="kategori"){S.edit.kategori=t.value;render();return;}
+  if(d.pf==="jenis"){S.edit.jenis=t.value;return;}
   if(d.sf==="nama"){S.edit.satuan[+d.i].nama=t.value;render();return;}
   if(d.prodk){S.prodK=t.value;render();return;}
   if(d.fotoform&&S.edit){const f=t.files&&t.files[0];if(!f)return;S.fotoSibuk="form";render();unggahFoto(f,S.edit.id).then(x=>{if(S.edit){S.edit.foto=x.foto;S.edit.fotoPath=x.fotoPath;}}).catch(fail).finally(()=>{S.fotoSibuk=null;render();});return;}
