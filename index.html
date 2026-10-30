@@ -1000,6 +1000,7 @@ tfoot td{font-weight:700;border-top:1px solid var(--garis);border-bottom:0;paddi
 .list{display:flex;flex-direction:column;gap:8px}
 .prow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;border:1px solid var(--garis);border-radius:var(--radius-besar);padding:12px 16px;background:var(--permukaan)}
 label.btn{text-transform:none;letter-spacing:0;color:var(--teks)}label.centang{text-transform:none;letter-spacing:0;font-size:14px;font-weight:500;color:var(--teks)}
+.pj__subtoggle{display:flex;align-items:center;gap:10px;margin-top:-4px}.pj__subbtn{height:32px;padding:0 12px;border-radius:999px;border:1px dashed var(--biru-garis);background:var(--permukaan);color:var(--teks-2,#445);font-size:13px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}.pj__subbtn--aktif{border-style:solid;border-color:var(--biru);color:var(--biru-tua);background:var(--biru-muda)}
 .pj__subjudul{flex:none;align-self:center;font-size:11.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--teks-3);min-width:72px}
 .pj__subkat{margin:-4px 0 0;padding-left:12px;border-left:3px solid var(--biru-garis,#c9d8f5)}.pj__subkat button{font-size:13px;min-height:32px;padding-block:4px}
 .kartu-barang__tanpaharga{color:var(--bahaya);font-size:13px;font-weight:600}
@@ -1315,7 +1316,9 @@ function posJual(){
    ${(()=>{const ck=S.cat;if(!ck)return "";const ps=S.produk.filter(p=>p.aktif!==false&&p.kategori===ck);
      const pbs=[...new Set(ps.map(p=>p.pabrikan).filter(Boolean))].sort();const js=JENIS.filter(j=>ps.some(p=>p.jenis===j));
      const baris=(judul,act,arr,cur)=>arr.length?`<div class="pj__kategori pj__subkat" role="group" aria-label="${judul}"><span class="pj__subjudul">${judul}</span><button data-act="${act}" data-v="" aria-pressed="${!cur}">Semua</button>${arr.map(x=>`<button data-act="${act}" data-v="${esc(x)}" aria-pressed="${cur===x}">${esc(x)}</button>`).join("")}</div>`:"";
-     return baris("Pabrikan","subpb",pbs,S.subPb)+baris("Jenis","subjn",js,S.subJn);})()}
+     if(!pbs.length&&!js.length)return "";const aktif=[S.subPb,S.subJn].filter(Boolean);
+     const tombol=`<div class="pj__subtoggle"><button class="pj__subbtn ${aktif.length?"pj__subbtn--aktif":""}" data-act="subtoggle" aria-expanded="${!!S.subOpen}">⚙ Filter ${esc(ck.toLowerCase())}${aktif.length?`: <b>${esc(aktif.join(" · "))}</b>`:""} <span aria-hidden="true">${S.subOpen?"▴":"▾"}</span></button>${aktif.length?`<button class="link" data-act="subreset">hapus filter</button>`:""}</div>`;
+     return tombol+(S.subOpen?baris("Pabrikan","subpb",pbs,S.subPb)+baris("Jenis","subjn",js,S.subJn):"");})()}
    <div class="pj__grid" id="grid">${gridHTML()}</div>
   </section><aside class="pj__keranjang" id="cartbox" aria-label="Keranjang">${cartInner()}</aside>
   <div class="pj__ringkas-hp"><button class="pj__ringkas-tombol" data-act="cartopen"><span>${c.items.length} barang · ${esc(custName(c))}</span><strong>${rp(cartTotal(c))}</strong><span class="pj__ringkas-lihat">Lihat keranjang →</span></button></div></div>`;
@@ -2153,6 +2156,8 @@ const ACT={
   postab(b){S.view='pos';S.posTab=b.dataset.t;S.laci=false;render();},
   cat(b){S.cat=b.dataset.c;S.subPb="";S.subJn="";render();},
   subpb(b){S.subPb=b.dataset.v;render();},
+  subtoggle(){S.subOpen=!S.subOpen;render();},
+  subreset(){S.subPb="";S.subJn="";render();},
   subjn(b){S.subJn=b.dataset.v;render();},
   tile(b){const p=prod(b.dataset.p);if(!p)return;if(!p.satuan.some(x=>x.jual>0)){toast(owner()?"Harga "+p.nama+" belum diisi. Isi dulu di Back Office → Produk.":"Harga "+p.nama+" belum diisi. Minta pemilik mengisi harganya.");return;}S.modal={t:"atur",htext:"",pid:p.id,i:null,si:p.satuan.map((x,i)=>({x,i})).sort((a,b)=>a.x.isi-b.x.isi)[0].i,qty:"1",dmode:"unit",dtext:""};renderModal();setTimeout(()=>{const q=$("#atur-jumlah");if(q){q.focus();q.select();}},0);},
   editline(b){const c=cart();const it=c.items[+b.dataset.i];if(!it||it.locked)return;const p=prod(it.pid);if(!p)return;const si=Math.max(0,p.satuan.findIndex(s=>s.nama===it.sat&&s.isi===it.isi));
