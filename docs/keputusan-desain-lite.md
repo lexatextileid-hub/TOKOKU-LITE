@@ -164,6 +164,18 @@ Khusus pemilik. **Bisa diunduh sebagai PDF** (di aplikasi asli).
   - Nama yang sudah ada di aplikasi dilewati; bila dicentang "Perbarui", harga & satuannya diganti dengan SKU tetap.
   - Disimpan sekaligus (upsert per 200 baris).
 - Tidak masuk Lite: stok, minimum/maksimum, letak, FIFO, harga beli per distributor, status gerak.
+- **Pabrikan** (mis. Djarum, Sampoerna, Wismilak, BAT, JTI, KT&G, Nojorono, Sukun, Gajah Baru): ikut dicari saat mengetik di Kasir.
+- **Jenis rokok**: Kretek, Filter, Mild, Putih (kolom Jenis hanya untuk kategori Rokok; ada di template Excel).
+- **Filter Kasir**: kategori → tombol "⚙ Filter rokok" yang bisa dilipat, isi baris **Pabrikan** dan **Jenis**.
+- **Foto produk** tampak depan di kartu Kasir (tinggi tetap; tanpa foto = kotak abu-abu berinisial). Sumber: file statis di repo `foto/` (tautan `https://tokoku-lite.vercel.app/foto/…`), unggah kamera/galeri ke Supabase Storage, atau tempel tautan.
+- **Sakelar ON/OFF** di daftar Produk (khusus pemilik): OFF = hilang dari Kasir, data tetap.
+- **Harga 0** = belum diisi: kartu Kasir menampilkan "Harga belum diisi" dan barang tidak bisa dijual. Produk baru tanpa harga dimasukkan dalam keadaan OFF.
+
+### Data rokok
+- Satuan: **Bungkus** dan **Slop** (umumnya isi 10; Forte & Djarum Super 50 isi 5).
+- Harga beli = **Kanvas Slop** dari daftar sales (bukan harga diskon); harga jual bungkus = beli + Rp 300, slop = beli slop + Rp 3.000.
+- Nama memakai isi batang di akhir (mis. "Esse Mild 20"); varian panjang ditulis "100s"; kemasan lama/baru produk yang sama tidak dibuat dobel.
+- Isi batang, jenis, dan pabrikan dicek ke beberapa sumber (situs pabrik, reviewrokok, marketplace) sebelum dimasukkan.
 
 ## Back Office: Pelanggan
 
