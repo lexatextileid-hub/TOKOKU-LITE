@@ -1190,6 +1190,7 @@ const fq=q=>Number.isInteger(q)?String(q):(+q).toLocaleString("id-ID",{maximumFr
 const pctf=v=>(+v).toLocaleString("id-ID",{maximumFractionDigits:1})+"%";
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
 const norm=s=>String(s||"").toLowerCase().replace(/[^a-z0-9]/g,"");
+const cocok=(teks,q)=>{const w=String(q||"").toLowerCase().split(/\s+/).map(norm).filter(Boolean);if(!w.length)return true;const h=norm(teks);return w.every(x=>h.includes(x));};
 const pad=n=>String(n).padStart(2,"0");
 const dkey=d=>{d=new Date(d);return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());};
 const jam=iso=>{const d=new Date(iso);return pad(d.getHours())+"."+pad(d.getMinutes());};
@@ -1330,7 +1331,7 @@ function posJual(){
 function gridHTML(){
   if(!S.produk.length)return `<p class="pj__kosong">Belum ada produk. ${owner()?`<button class="btn sm primary" data-act="contoh">Muat contoh data</button>`:"Minta pemilik mengisi data produk."}</p>`;
   const q=S.q.trim().toLowerCase();const w=q.split(/\s+/).filter(Boolean);
-  const ck=S.cat,cj=ck&&S.subJn,cp=ck&&S.subPb;const list=S.produk.filter(p=>p.aktif!==false&&(!ck||p.kategori===ck)&&(!cj||p.jenis===cj)&&(!cp||p.pabrikan===cp)&&w.every(x=>(p.nama+" "+p.sku+" "+(p.kode||"")+" "+(p.pabrikan||"")).toLowerCase().includes(x))).sort(byNama);
+  const ck=S.cat,cj=ck&&S.subJn,cp=ck&&S.subPb;const list=S.produk.filter(p=>p.aktif!==false&&(!ck||p.kategori===ck)&&(!cj||p.jenis===cj)&&(!cp||p.pabrikan===cp)&&cocok(p.nama+" "+p.sku+" "+(p.kode||"")+" "+(p.pabrikan||""),q)).sort(byNama);
   if(!list.length)return `<p class="pj__kosong">Barang tidak ditemukan. Barang yang belum terdaftar tidak bisa dijual; pemilik bisa menambahkannya di Produk.</p>`;
   const jml={};cart().items.forEach(i=>{jml[i.pid]=(jml[i.pid]||0)+i.qty*i.isi;});
   return list.map(p=>{const s=p.satuan[0];const t=(p.tingkat||[]).length;
@@ -1340,7 +1341,7 @@ function cekNama(){const c=cart();if(c.pelangganId||(c.namaBebas||"").trim())ret
   toast('Nama pelanggan wajib diisi. Boleh "-" bila tidak tahu.');S.cartOpen=true;const i=$("#nama-pelanggan");if(i){i.classList.add("isian--salah");i.focus();}else render();return false;}
 function pelInfo(c){const pl=c.pelangganId&&pelg(c.pelangganId);if(pl){const h=sisaHutang(pl.id);return `<p class="pj__info"><span class="lencana">terdaftar</span> ${esc([pl.telp,pl.alamat].filter(Boolean).join(" · "))}${h?` · hutang <strong>${rp(h)}</strong>`:""}${(pl.diskon||[]).length?` · diskon khusus`:""}</p>`;}
   return c.namaBebas?`<p class="pj__info">Belum terdaftar · bayar lunas. Untuk hutang, <button class="link" data-act="newcust">daftarkan ${esc(c.namaBebas)}</button>.</p>`:``;}
-function pelSaran(q){q=norm(q);if(!q)return"";const list=S.pelanggan.filter(p=>norm(p.nama).includes(q)||norm(p.telp).includes(q)).sort(byNama).slice(0,6);
+function pelSaran(q){if(!norm(q))return"";const list=S.pelanggan.filter(p=>cocok(p.nama,q)||cocok(p.telp,q)).sort(byNama).slice(0,6);
   return list.map(p=>`<button class="pel-saran__item" data-act="pilihpel" data-id="${p.id}"><b>${esc(p.nama)}</b><span>${esc([p.telp,p.alamat].filter(Boolean).join(" · "))}</span></button>`).join("");}
 const custName=c=>c.pelangganId?(pelg(c.pelangganId)?.nama||"?"):(c.namaBebas||"tanpa nama");
 const cartTotal=c=>cartSub(c)-(c.kredit?.nilai||0);
@@ -1715,13 +1716,13 @@ function kartuRingkas(items){return `<div class="kk-ringkas" style="grid-templat
 function jualPerProduk(s,e){const m={};S.nota.forEach(n=>{if(n.status!=="dibayar"||n.jenis==="lama"||!n.dibayarAt)return;const t=new Date(n.dibayarAt);if(t<s||t>=e)return;n.items.forEach(it=>{if(!(it.qty>0))return;const x=m[it.pid]||(m[it.pid]={q:0,o:0,m:0,n:0,last:""});x.q+=it.qty*(it.isi||1);x.o+=lineTotal(it);x.m+=lineTotal(it)-it.qty*(it.beli||0);x.n++;if(n.dibayarAt>x.last)x.last=n.dibayarAt;});});return m;}
 const untungMin=p=>{let mn=null;p.satuan.forEach(s=>{const u=untung(s);if(u&&(mn==null||u.pct<mn))mn=u.pct;});return mn;};
 function vRiwayat(){
-  const o=S.riw;const [s,e]=rangeOf(o);const inR=iso=>{const t=new Date(iso);return t>=s&&t<e;};const q=norm(o.q);
+  const o=S.riw;const [s,e]=rangeOf(o);const inR=iso=>{const t=new Date(iso);return t>=s&&t<e;};const q=o.q;
   let rows=[];
   S.nota.forEach(n=>{if(n.status==="menunggu")return;const t=n.status==="batal"?(n.batalAt||n.dibuat):n.dibayarAt;if(!t||!inR(t))return;rows.push({t,k:n.jenis==="lama"?"lama":n.status==="batal"?"batal":"jual",n,nama:pelLabel(n),no:n.no,pid:n.pelangganId,total:n.jenis==="lama"?n.bayar.hutang:(n.tagihan??n.items.reduce((a,i)=>a+lineTotal(i),0))});});
   S.bayar.forEach(b=>{if(!inR(b.tanggal)||b.metode==="retur")return;rows.push({t:b.tanggal,k:"bayar",b,nama:pelg(b.pelangganId)?.nama||"?",no:b.no,pid:b.pelangganId,total:b.jumlah});});
   S.retur.forEach(r=>{if(!inR(r.tanggal))return;rows.push({t:r.tanggal,k:"retur",r,nama:r.pelangganId?(pelg(r.pelangganId)?.nama||"?"):(r.namaBebas||"-"),no:r.no,pid:r.pelangganId,total:-r.nilai});});
   const F={semua:()=>true,jual:x=>x.k==="jual",bayar:x=>x.k==="bayar",retur:x=>x.k==="retur",batal:x=>x.k==="batal"};
-  rows=rows.filter(x=>!q||norm(x.no).includes(q)||norm(x.nama).includes(q));
+  rows=rows.filter(x=>cocok(x.no+" "+x.nama,q));
   const sumK=k=>{const r=rows.filter(F[k]);return{n:r.length,t:r.reduce((a,x)=>a+(x.k==="batal"?0:x.total),0)};};const cJ=sumK("jual"),cB=sumK("bayar"),cR=sumK("retur"),cX=sumK("batal");
   rows=rows.filter(F[o.f]).sort((a,b)=>a.t<b.t?1:-1);
   const groups={};rows.forEach(x=>{(groups[dkey(x.t)]||(groups[dkey(x.t)]=[])).push(x);});
@@ -1851,8 +1852,8 @@ function vProduk(){
   ${F!=="semua"?`<p class="catatan catatan--info">Menampilkan: ${({laku:"barang yang terjual di periode, terlaris dulu",tidak:"barang aktif yang tidak terjual di periode",tipis:"barang dengan untung di bawah 5% atau rugi"})[F]} · <button class="link" data-act="prodf" data-v="semua">tampilkan semua</button></p>`:""}
   <div class="list" id="plist">${prodList()}</div></section>`;
 }
-function prodList(){const J=S._J||{};const q=norm(S.prodQ);const F=S.lap.prodF;
-  let list=S.produk.filter(p=>(!q||norm(p.nama+p.sku+(p.kode||"")+(p.pabrikan||"")).includes(q))&&(!S.prodK||p.kategori===S.prodK)&&(!S.prodTanpaFoto||!p.foto));
+function prodList(){const J=S._J||{};const q=S.prodQ;const F=S.lap.prodF;
+  let list=S.produk.filter(p=>cocok(p.nama+" "+p.sku+" "+(p.kode||"")+" "+(p.pabrikan||""),q)&&(!S.prodK||p.kategori===S.prodK)&&(!S.prodTanpaFoto||!p.foto));
   if(F==="laku")list=list.filter(p=>J[p.id]).sort((a,b)=>J[b.id].o-J[a.id].o);
   else if(F==="tidak")list=list.filter(p=>p.aktif!==false&&!J[p.id]).sort(byNama);
   else if(F==="tipis")list=list.filter(p=>p.aktif!==false&&untungMin(p)!=null&&untungMin(p)<5).sort((a,b)=>untungMin(a)-untungMin(b));
@@ -1903,7 +1904,7 @@ function vPelanggan(){
   const baru=S.pelanggan.filter(p=>p.dibuat&&new Date(p.dibuat)>=ps&&new Date(p.dibuat)<pe).length;
   const aktifN=Object.keys(B.m).length;const aktifO=Object.values(B.m).reduce((a,x)=>a+x.o,0);
   const hut=S.pelanggan.filter(p=>sisaHutang(p.id)>0);
-  const q=norm(S.pelQ);let list=S.pelanggan.filter(p=>!q||norm(p.nama+p.telp+p.alamat).includes(q));
+  const q=S.pelQ;let list=S.pelanggan.filter(p=>cocok(p.nama+" "+p.telp+" "+p.alamat,q));
   if(F==="aktif")list=list.filter(p=>B.m[p.id]).sort((a,b)=>B.m[b.id].o-B.m[a.id].o);
   else if(F==="hutang")list=list.filter(p=>sisaHutang(p.id)>0).sort((a,b)=>sisaHutang(b.id)-sisaHutang(a.id));
   else if(F==="baru")list=list.filter(p=>p.dibuat&&new Date(p.dibuat)>=ps&&new Date(p.dibuat)<pe).sort(byNama);
@@ -2281,7 +2282,7 @@ document.addEventListener("input",e=>{const t=e.target,d=t.dataset;
   if(d.rq!==undefined){S.modal.q[d.rq]=t.value;const n=S.nota.find(x=>x.id===S.modal.id);const f=returFactor(n);const rq=n.returQty||{};const v=n.items.reduce((a,it,i)=>a+Math.min(qn(S.modal.q[i]||0),it.qty-(rq[i]||0))*(it.normal-(it.disk||0))*f,0);$("#rv").textContent=rp(v);const btn=document.querySelector('[data-act="doretur"]');if(btn)btn.disabled=!(v>0);return;}
   if(d.riwq){S.riw.q=t.value;clearTimeout(S.rt);S.rt=setTimeout(()=>{const pos=t.selectionStart;render();const n=$("#riwq");if(n){n.focus();try{n.setSelectionRange(pos,pos);}catch(_){}}},300);return;}
   if(d.pelq){S.pelQ=t.value;clearTimeout(S.pt);S.pt=setTimeout(()=>{const pos=t.selectionStart;render();const n=$("#pelq");if(n){n.focus();try{n.setSelectionRange(pos,pos);}catch(_){}}},300);return;}
-  if(d.prodq){S.prodQ=t.value;const q=norm(t.value);const l=$("#plist");if(l){const list=S.produk.filter(p=>(!q||norm(p.nama+p.sku+(p.kode||"")+(p.pabrikan||"")).includes(q))&&(!S.prodK||p.kategori===S.prodK)).sort((a,b)=>(a.aktif===false)-(b.aktif===false)||byNama(a,b));l.innerHTML=prodList();}return;}
+  if(d.prodq){S.prodQ=t.value;const l=$("#plist");if(l)l.innerHTML=prodList();return;}
   if(d.pf&&S.edit){if(d.pf==="aktif")S.edit.aktif=t.checked;else S.edit[d.pf]=t.value;return;}
   if(d.sf&&S.edit){const i=+d.i,s=S.edit.satuan[i];s[d.sf]=t.value;
     if(d.sf==="pct"){const b=money(s.beli);if(b&&t.value!==""){s.jual=String(Math.round(b*(1+qn(t.value)/100)));const j=document.querySelector(`[data-sf="jual"][data-i="${i}"]`);if(j)j.value=s.jual;}}
