@@ -1195,6 +1195,7 @@ const qn=v=>{const x=parseFloat(String(v).replace(",","."));return isFinite(x)?x
 const fq=q=>Number.isInteger(q)?String(q):(+q).toLocaleString("id-ID",{maximumFractionDigits:3});
 const pctf=v=>(+v).toLocaleString("id-ID",{maximumFractionDigits:1})+"%";
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const layarSentuh=()=>{try{return matchMedia("(pointer: coarse)").matches;}catch(_){return false;}};
 const norm=s=>String(s||"").toLowerCase().replace(/[^a-z0-9]/g,"");
 const cocok=(teks,q)=>{const w=String(q||"").toLowerCase().split(/\s+/).map(norm).filter(Boolean);if(!w.length)return true;const h=norm(teks);return w.every(x=>h.includes(x));};
 const pad=n=>String(n).padStart(2,"0");
@@ -2170,7 +2171,7 @@ const ACT={
   subtoggle(){S.subOpen=!S.subOpen;render();},
   subreset(){S.subPb="";S.subJn="";render();},
   subjn(b){S.subJn=b.dataset.v;render();},
-  tile(b){const p=prod(b.dataset.p);if(!p)return;if(!p.satuan.some(x=>x.jual>0)){toast(owner()?"Harga "+p.nama+" belum diisi. Isi dulu di Back Office → Produk.":"Harga "+p.nama+" belum diisi. Minta pemilik mengisi harganya.");return;}S.modal={t:"atur",htext:"",pid:p.id,i:null,si:p.satuan.map((x,i)=>({x,i})).sort((a,b)=>a.x.isi-b.x.isi)[0].i,qty:"1",dmode:"unit",dtext:""};renderModal();setTimeout(()=>{const q=$("#atur-jumlah");if(q){q.focus();q.select();}},0);},
+  tile(b){const p=prod(b.dataset.p);if(!p)return;if(!p.satuan.some(x=>x.jual>0)){toast(owner()?"Harga "+p.nama+" belum diisi. Isi dulu di Back Office → Produk.":"Harga "+p.nama+" belum diisi. Minta pemilik mengisi harganya.");return;}S.modal={t:"atur",htext:"",pid:p.id,i:null,si:p.satuan.map((x,i)=>({x,i})).sort((a,b)=>a.x.isi-b.x.isi)[0].i,qty:"1",dmode:"unit",dtext:""};renderModal();if(!layarSentuh())setTimeout(()=>{const q=$("#atur-jumlah");if(q){q.focus();q.select();}},0);},
   editline(b){const c=cart();const it=c.items[+b.dataset.i];if(!it||it.locked)return;const p=prod(it.pid);if(!p)return;const si=Math.max(0,p.satuan.findIndex(s=>s.nama===it.sat&&s.isi===it.isi));
     S.modal={t:"atur",pid:p.id,i:+b.dataset.i,si,qty:String(it.qty),dmode:it.diskManual&&!it.dariHarga?"total":"unit",dtext:it.diskManual&&!it.dariHarga?rn(Math.round(it.disk*it.qty)):"",htext:it.hargaManual?rn(it.hargaManual):it.dariHarga?rn(it.hargaKetik||(it.normal-it.disk)):""};renderModal();},
   aturSat(b){S.modal.si=+b.dataset.s;renderModal();},
@@ -2190,7 +2191,7 @@ const ACT={
     const dup=S.pelanggan.find(p=>norm(p.nama)===norm(nama)||(telp&&norm(p.telp)===norm(telp)));if(dup){toast(`Sudah ada: ${dup.nama}. Pilih dari daftar.`);return;}
     const id=uid();try{await put("pelanggan",id,{nama,telp,alamat,diskon:[],dibuat:now()});}catch(e){fail(e);return;}const c=cart();c.pelangganId=id;c.namaBebas="";S.modal=null;renderModal();refreshCart();toast("Pelanggan "+nama+" ditambahkan.");},
   simpan(){simpanNota();},
-  openpay(){if(!cekNama())return;const c=cart();reprice(c);S.modal={t:"pay",met:"tunai",tu:"",tr:null,bank:"",hbOn:false,hb:"",kurang:"potongan",refm:"tunai"};renderModal();setTimeout(()=>$("#p-tu")?.focus(),0);},
+  openpay(){if(!cekNama())return;const c=cart();reprice(c);S.modal={t:"pay",met:"tunai",tu:"",tr:null,bank:"",hbOn:false,hb:"",kurang:"potongan",refm:"tunai"};renderModal();if(!layarSentuh())setTimeout(()=>$("#p-tu")?.focus(),0);},
   met(b){const m=S.modal;m.met=b.dataset.m;m.tr=null;if(m.met!=="campuran")m.tu="";refreshPay(m.met==="transfer"?"p-tr":"p-tu");},
   cepat(b){S.modal.tu=b.dataset.v;refreshPay();},
   trsisa(){const m=S.modal;const r=payCalc(m);m.tr=String(Math.max(0,r.tagihan-money(m.tu)));refreshPay();},
