@@ -1550,10 +1550,45 @@ function harianText(dk){
   return t.join("\n");
 }
 function vPrint(){const p=S.printing;const qn=S.printQ.length;
-  return `<div class="modal"><div class="sheet" role="dialog" aria-label="${esc(p.judul)}"><div class="sheet-h"><div><h2>${esc(p.judul)}</h2><div class="printing">● Mengirim ke printer kasir${qn?` · ${qn} lagi di antrean`:""}</div></div></div><div class="paper">${esc(p.text)}</div>
-  <p class="hint" style="margin:0;text-align:center">Pratinjau. Di aplikasi asli, kertas ini langsung keluar dari printer thermal Bluetooth.</p>
-  <div class="sheet-a">${p.wa?`<a class="btn" href="${esc(p.wa)}" target="_blank" rel="noopener">Kirim WA</a>`:""}<button class="btn primary" data-act="printdone">Selesai</button></div></div></div>`;}
-function printDoc(judul,text,opt={}){const job={judul,text,...opt};if(S.printing)S.printQ.push(job);else S.printing=job;renderModal();}
+  return `<div class="modal"><div class="sheet" role="dialog" aria-label="${esc(p.judul)}"><div class="sheet-h"><div><h2>${esc(p.judul)}</h2>${btStatusHTML(p)}${qn?`<div class="hint">${qn} lagi di antrean</div>`:""}</div></div><div class="paper">${esc(p.text)}</div>
+  <div class="sheet-a">${(p.st==="putus"||p.st==="gagal")&&btAda()?`<button class="btn" data-act="btcetak">${p.st==="putus"?"Hubungkan printer & cetak":"Coba lagi"}</button>`:""}${p.st==="ok"?`<button class="btn" data-act="btulang">Cetak lagi</button>`:""}${p.wa?`<a class="btn" href="${esc(p.wa)}" target="_blank" rel="noopener">Kirim WA</a>`:""}<button class="btn primary" data-act="printdone">Selesai</button></div></div></div>`;}
+function printDoc(judul,text,opt={}){const job={judul,text,...opt};if(S.printing)S.printQ.push(job);else{S.printing=job;renderModal();cetakBT(job);return;}renderModal();}
+/* ================= Printer thermal Bluetooth (Web Bluetooth + ESC/POS) ================= */
+const BT_SVC=["000018f0-0000-1000-8000-00805f9b34fb","e7810a71-73ae-499d-8c15-faa9aef0c3f2","49535343-fe7d-4ae5-8fa9-9fafd205e455","0000ff00-0000-1000-8000-00805f9b34fb","0000ae30-0000-1000-8000-00805f9b34fb","0000ae00-0000-1000-8000-00805f9b34fb","0000fee7-0000-1000-8000-00805f9b34fb","0000ffe0-0000-1000-8000-00805f9b34fb"];
+const PR={dev:null,ch:null,nama:"",err:""};
+const btAda=()=>{try{return !!navigator.bluetooth;}catch(_){return false;}};
+const btNyambung=()=>!!(PR.ch&&PR.dev&&PR.dev.gatt&&PR.dev.gatt.connected);
+const btSimpanNama=n=>{try{localStorage.setItem("tkl_printer",n);}catch(_){}};
+const btNamaTersimpan=()=>{try{return localStorage.getItem("tkl_printer")||"";}catch(_){return "";}};
+async function btSambung(dev){PR.dev=dev;PR.nama=dev.name||"Printer";if(!dev._tklPasang){dev._tklPasang=1;dev.addEventListener("gattserverdisconnected",()=>{PR.ch=null;if(S.view==="pengaturan")render();});}
+  const srv=await dev.gatt.connect();let ch=null;
+  for(const u of BT_SVC){try{const sv=await srv.getPrimaryService(u);const cs=await sv.getCharacteristics();ch=cs.find(c=>c.properties.writeWithoutResponse||c.properties.write);if(ch)break;}catch(_){}}
+  if(!ch){try{dev.gatt.disconnect();}catch(_){}throw new Error("Perangkat ini tidak dikenali sebagai printer thermal BLE.");}
+  PR.ch=ch;PR.err="";btSimpanNama(PR.nama);}
+async function btPilih(){const dev=await navigator.bluetooth.requestDevice({acceptAllDevices:true,optionalServices:BT_SVC});await btSambung(dev);}
+async function btSiap(){if(btNyambung())return true;
+  if(PR.dev){try{await btSambung(PR.dev);return true;}catch(_){}}
+  if(navigator.bluetooth&&navigator.bluetooth.getDevices){try{const ds=await navigator.bluetooth.getDevices();const nm=btNamaTersimpan();const d=ds.find(x=>x.name===nm)||ds[0];if(d){await btSambung(d);return true;}}catch(_){}}
+  return false;}
+function escpos(text){const ganti={"·":"-","×":"x","–":"-","—":"-","…":"...","“":'"',"”":'"',"‘":"'","’":"'","✓":"v","●":"*","é":"e","Rp ":"Rp "};
+  let t=String(text).replace(/\r/g,"");Object.keys(ganti).forEach(k=>{t=t.split(k).join(ganti[k]);});
+  const b=[0x1b,0x40,0x1b,0x74,0x00];for(const ch of t){let c=ch.charCodeAt(0);if(ch==="\n")c=0x0a;else if(c<32||c>126)c=0x3f;b.push(c);}
+  b.push(0x0a,0x0a,0x0a,0x0a,0x1d,0x56,0x42,0x00);return new Uint8Array(b);}
+async function btKirim(bytes){const ch=PR.ch;const tanpa=ch.properties.writeWithoutResponse&&ch.writeValueWithoutResponse;const n=tanpa?100:180;
+  for(let i=0;i<bytes.length;i+=n){const part=bytes.slice(i,i+n);if(tanpa){await ch.writeValueWithoutResponse(part);await new Promise(r=>setTimeout(r,25));}else await ch.writeValue(part);}}
+async function cetakBT(job){if(!job)return;if(!btAda()){job.st="tidak";renderModal();return;}
+  job.st="kirim";renderModal();
+  if(!(await btSiap())){job.st="putus";renderModal();return;}
+  try{await btKirim(escpos(job.text));job.st="ok";}catch(e){job.st="gagal";job.err=e.message||String(e);PR.ch=null;}
+  if(S.printing===job)renderModal();}
+function btStatusHTML(p){const nm=esc(PR.nama||btNamaTersimpan()||"printer");
+  if(p.st==="ok")return `<div class="printing">✓ Tercetak di ${nm}</div>`;
+  if(p.st==="kirim")return `<div class="printing">● Mengirim ke ${nm}…</div>`;
+  if(p.st==="putus")return `<div class="printing" style="color:var(--bahaya)">Printer belum tersambung</div>`;
+  if(p.st==="gagal")return `<div class="printing" style="color:var(--bahaya)">Gagal mencetak: ${esc(p.err||"")}</div>`;
+  if(p.st==="tidak")return `<div class="printing" style="color:var(--teks-3)">Pratinjau saja (browser ini tidak mendukung printer Bluetooth; pakai Chrome di tablet Android)</div>`;
+  return `<div class="printing">● Menyiapkan…</div>`;}
+
 function waLink(n){const pl=n.pelangganId&&pelg(n.pelangganId);let hp=(pl?.telp||"").replace(/\D/g,"");if(hp.startsWith("0"))hp="62"+hp.slice(1);return "https://wa.me/"+hp+"?text="+encodeURIComponent(strukText(n));}
 const printed=new Set();
 function autoSlip(){
@@ -1959,7 +1994,8 @@ function vPengaturan(){const st=setting();
   return `${kartuRingkas([{judul:"Toko",nilai:esc(st.nama),catatan:esc(st.telp||"no. telepon belum diisi")},{judul:"Produk",nilai:`${S.produk.filter(p=>p.aktif!==false).length} aktif`,catatan:`${st.kategori.length} kategori · ${st.satuan.length} satuan`},{judul:"Pelanggan terdaftar",nilai:S.pelanggan.length,catatan:`${S.pelanggan.filter(p=>(p.diskon||[]).length).length} punya diskon khusus`},{judul:"Printer kasir",nilai:st.autoSlip?"Slip otomatis":"Slip manual",catatan:"thermal Bluetooth · tablet kasir",warna:st.autoSlip?"utama":""}])}
   <section class="panel"><h2>Toko</h2><div class="row"><div class="field"><label for="st-n">Nama toko</label><input id="st-n" value="${esc(st.nama)}"></div><div class="field"><label for="st-t">No. telepon</label><input id="st-t" value="${esc(st.telp)}"></div></div>
   <div class="field"><label for="st-a">Alamat</label><input id="st-a" value="${esc(st.alamat)}"></div><div class="field"><label for="st-f">Catatan kaki struk</label><input id="st-f" value="${esc(st.footer)}"></div><div><button class="btn primary" data-act="savetoko">Simpan</button></div></section>
-  <section class="panel"><h2>Printer</h2><p class="hint" style="margin:0">Printer thermal Bluetooth dipasangkan ke tablet kasir (Chrome Android). Di prototipe ini cetakan tampil sebagai pratinjau.</p>
+  <section class="panel"><h2>Printer</h2><p class="hint" style="margin:0">Printer thermal Bluetooth (BLE, kertas 58 mm) dipasangkan ke tablet kasir lewat Chrome Android. Slip dan struk langsung keluar dari printer.</p>
+  ${btAda()?`<div class="row" style="align-items:center;gap:10px;flex-wrap:wrap"><span class="chip ${btNyambung()?"blue":""}">${btNyambung()?"Tersambung: "+esc(PR.nama):btNamaTersimpan()?"Terakhir: "+esc(btNamaTersimpan())+" (belum tersambung)":"Belum ada printer"}</span><button class="btn primary" data-act="btpasang">${btNyambung()?"Ganti printer":"Hubungkan printer"}</button><button class="btn" data-act="bttes">Tes cetak</button>${btNyambung()?`<button class="btn" data-act="btlepas">Putuskan</button>`:""}</div>`:`<p class="catatan">Browser ini tidak mendukung printer Bluetooth. Buka aplikasi di <b>Chrome</b> pada tablet Android kasir.</p>`}
   <label class="switch"><input type="checkbox" data-autoslip="1" ${st.autoSlip?"checked":""}> Cetak slip pesanan otomatis saat admin menyimpan nota</label></section>
   ${vAkun()}
   <section class="panel"><h2>Kategori</h2><div class="pmeta">${st.kategori.map(k=>`<span class="chip blue">${esc(k.nama)} · ${esc(k.kode)}</span>`).join("")}</div><div class="row"><div class="field"><label for="nk-n">Kategori baru</label><input id="nk-n" placeholder="mis. Buah"></div><div class="field" style="flex:0 1 120px"><label for="nk-k">Kode (3 huruf)</label><input id="nk-k" maxlength="3" placeholder="BUH" style="text-transform:uppercase"></div><button class="btn" data-act="addkat">Tambah</button></div></section>
@@ -2198,7 +2234,12 @@ const ACT={
   hbsemua(){const m=S.modal;m.hb=String(payCalc(m).sisaH);refreshPay();},
   refm(b){S.modal.refm=b.dataset.m;refreshPay();},
   dopay(){doPay();},
-  printdone(){const p=S.printing;if(p.slipId){patch("nota",p.slipId,{slipPrinted:true}).catch(fail);}S.printing=S.printQ.shift()||null;renderModal();},
+  printdone(){const p=S.printing;if(p.slipId){patch("nota",p.slipId,{slipPrinted:true}).catch(fail);}S.printing=S.printQ.shift()||null;renderModal();if(S.printing)cetakBT(S.printing);},
+  async btcetak(){const p=S.printing;if(!p)return;try{if(!(await btSiap()))await btPilih();}catch(e){if(e&&e.name==="NotFoundError")return;p.st="gagal";p.err=e.message||String(e);renderModal();return;}cetakBT(p);},
+  btulang(){cetakBT(S.printing);},
+  async btpasang(){if(!btAda()){toast("Browser ini tidak mendukung printer Bluetooth. Buka di Chrome tablet Android.");return;}try{await btPilih();toast("Printer "+PR.nama+" tersambung.");}catch(e){if(!(e&&e.name==="NotFoundError")){PR.err=e.message||String(e);toast(PR.err);}}render();},
+  bttes(){const st=setting();printDoc("Tes printer",[C(st.nama||"TOKOKU Lite"),HR,C("TES PRINTER"),C("Printer siap dipakai"),HR,C(tglj(now()))].join("\n"));},
+  btlepas(){try{PR.dev&&PR.dev.gatt.disconnect();}catch(_){}PR.ch=null;PR.dev=null;btSimpanNama("");render();toast("Printer diputus.");},
   opennota(b){openNota(b.dataset.id);},
   forceopen(b){openNota(b.dataset.id,true);},
   async parkopen(b){await simpanNota();openNota(b.dataset.id,true);},
