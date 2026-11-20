@@ -1159,6 +1159,76 @@ button.kk-mini__item{cursor:pointer}button.kk-mini__item:hover{border-color:var(
 .pel-saran__item:hover{background:var(--biru-muda)}.pel-saran__item span{font-size:12px;color:var(--teks-3)}
 .pj__label-pesanan{display:flex;justify-content:space-between;align-items:baseline;padding:10px 16px 0}
 @media (max-width:860px){.tabbar-lite{padding:0 12px}.pj-wrap{height:auto}}
+
+/* ===== Bilah alat (cari + periode + filter) ===== */
+.alat{display:flex;flex-direction:column;gap:10px;margin-bottom:4px}
+.panel>.alat{margin-bottom:12px}
+.alat__baris{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.alat__cari{flex:1 1 260px;min-width:0;position:relative;display:flex;align-items:center;margin:0}
+.alat__cari>svg{position:absolute;left:12px;color:var(--teks-3);pointer-events:none}
+.alat__cari input{width:100%;height:42px;padding-left:38px}
+.alat__toggle{display:inline-flex;align-items:center;gap:8px;height:42px;padding:0 12px;border:1px solid var(--garis-kuat);border-radius:var(--radius);background:var(--permukaan);color:var(--teks);font:inherit;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap;max-width:100%}
+.alat__toggle svg{color:var(--biru-tua);flex:none}
+.alat__toggle:hover,.alat__toggle[aria-expanded="true"]{border-color:var(--biru-garis);background:var(--biru-muda)}
+.alat__teks{overflow:hidden;text-overflow:ellipsis}
+.alat__panah{font-size:11px;color:var(--teks-3);transition:transform .15s}
+.alat__toggle[aria-expanded="true"] .alat__panah{transform:rotate(180deg)}
+.alat__badge{min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:var(--biru);color:#fff;font-size:12px;display:inline-flex;align-items:center;justify-content:center}
+.alat__aksi{display:flex;gap:8px;margin-left:auto;flex-wrap:wrap}
+.alat__panel{display:flex;flex-wrap:wrap;gap:14px 20px;align-items:flex-end;padding:12px 14px;border:1px solid var(--garis);border-radius:var(--radius-besar);background:var(--permukaan-2)}
+.alat__grup{display:flex;flex-direction:column;gap:6px;min-width:0}
+.alat__grup select{height:42px;min-width:200px}
+.alat__label{font-size:11.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--teks-3)}
+.alat__centang{display:flex;gap:6px 16px;flex-wrap:wrap;min-height:42px;align-items:center}
+.alat__reset{align-self:center;margin-left:auto}
+.alat__ringkas{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:-2px}
+.alat__chip{height:28px;padding:0 10px;border-radius:999px;border:1px solid var(--biru-garis);background:var(--biru-muda);color:var(--biru-tua);font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* + Produk */
+.tp-scan{display:flex;gap:8px}.tp-scan input{flex:1;min-width:0;height:44px}.tp-scan .btn{display:inline-flex;gap:6px;align-items:center;height:44px}
+.tp-atau{display:flex;align-items:center;gap:10px;color:var(--teks-3);font-size:12.5px}.tp-atau::before,.tp-atau::after{content:"";flex:1;height:1px;background:var(--garis)}
+.tp-pilih{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tp-opsi{display:flex;flex-direction:column;gap:4px;text-align:left;padding:12px 14px;border:1px solid var(--garis-kuat);border-radius:var(--radius-besar);background:var(--permukaan);font:inherit;color:var(--teks);cursor:pointer}
+.tp-opsi:hover{border-color:var(--biru-garis);background:var(--biru-muda)}.tp-opsi span{font-size:12.5px;color:var(--teks-3)}
+@media (max-width:640px){
+  .alat__cari{flex:1 1 0}
+  .alat__toggle .alat__teks{display:none}
+  .alat--tanpa-cari .alat__toggle{flex:1 1 auto}
+  .alat--tanpa-cari .alat__toggle .alat__teks{display:inline}
+  .alat__aksi{flex:1 1 100%;margin-left:0}
+  .alat__aksi .btn{flex:1 1 0}
+  .alat--tanpa-cari .alat__aksi{flex:0 1 auto}
+  .alat--tanpa-cari .alat__aksi .btn{flex:0 0 auto}
+  .alat__panel{padding:12px;gap:12px}
+  .alat__grup{flex:1 1 100%}.alat__grup select{width:100%;min-width:0}
+  .alat__panel .pp1,.alat__panel .pp1__tombol{width:100%}
+  .tp-pilih{grid-template-columns:1fr}
+  /* ringkasan angka: 2 kolom, semua terlihat */
+  .kk-ringkas{display:grid !important;grid-template-columns:repeat(2,minmax(0,1fr)) !important;overflow:visible;gap:8px}
+  .kk-ringkas>*{padding:10px 12px;min-width:0}
+  .kk-ringkas strong{font-size:18px}
+  .kk-ringkas .teks-pudar{font-size:11.5px}
+  /* baris produk */
+  .prow{padding:12px;gap:10px}
+  .prow__isi{align-items:flex-start}
+  .prow__kanan{flex-wrap:wrap;gap:8px;justify-content:flex-end}
+  .prow__kanan .lc-nilai{flex:1 1 100%;text-align:left}
+  .prow__kanan .btn{height:38px}
+}
+
+.alat__cari input[type="search"],.alat__cari input{padding-left:40px !important}
+@media (max-width:640px){
+  .hp-sembunyi{display:none}
+  .tabbar-lite .kk-mini{display:grid !important;grid-template-columns:repeat(3,minmax(0,1fr));overflow:visible !important;gap:6px}
+  .tabbar-lite .kk-mini>*{min-width:0}
+}
+.hp-saja{display:none}@media (max-width:640px){.hp-saja{display:block}}
+@media (max-width:640px){.alat--tanpa-cari .pp1{flex:1 1 auto;min-width:0}.alat--tanpa-cari .pp1__tombol{width:100%}.alat--tanpa-cari .pp1__tombol>span:nth-child(2){overflow:hidden;text-overflow:ellipsis;white-space:nowrap}}
+.bc-isian{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.bc-isian input{flex:1 1 220px;min-width:0;height:42px}
+.bc-isian .btn{display:inline-flex;gap:6px;align-items:center;height:42px}
+.bc-chip{display:inline-flex;align-items:center;gap:4px;height:32px;padding:0 4px 0 10px;border-radius:999px;background:var(--biru-muda);border:1px solid var(--biru-garis);color:var(--biru-tua);font-family:"IBM Plex Mono",monospace;font-size:13px}
+.bc-chip button{border:0;background:none;color:inherit;font-size:16px;line-height:1;width:24px;height:24px;border-radius:999px;cursor:pointer}
+.bc-chip button:hover{background:rgba(0,0,0,.08)}
 </style>
 <style>html,body{margin:0;height:100%}</style>
 </head>
@@ -1317,7 +1387,7 @@ function render(){
 function renderModal(){
   if(S.printing){$("#modal").innerHTML=vPrint();return;}
   const m=S.modal;if(!m){$("#modal").innerHTML="";return;}if(m.t==="kamera"&&!m.err&&$("#kam-video"))return;
-  const DLG={kamera:[mKamera,480],bcisi:[mBcIsi,520],bcbaru:[mBcBaru,560],atur:[mAtur,560],pay:[mPay,520],pelbaru:[mPelBaru,460],replace:[mReplace,480],view:[mViewNota,420]};
+  const DLG={tambahprod:[mTambahProd,480],kamera:[mKamera,480],bcisi:[mBcIsi,520],bcbaru:[mBcBaru,560],atur:[mAtur,560],pay:[mPay,520],pelbaru:[mPelBaru,460],replace:[mReplace,480],view:[mViewNota,420]};
   if(DLG[m.t]){$("#modal").innerHTML=`<div class="modal" data-act="closemodal" data-self="1"><section class="dialog" role="dialog" aria-modal="true" style="max-width:${DLG[m.t][1]}px">${DLG[m.t][0](m)}</section></div>`;return;}
   const fn={impor:mImpor,nota:mNota,retur:mRetur,batal:mBatal,akun:mAkun,lama:mLama,bayardet:m=>mBayarDetail(S.bayar.find(x=>x.id===m.id))}[m.t];
   $("#modal").innerHTML=`<div class="modal" data-act="closemodal" data-self="1"><div class="sheet ${m.wide?"wide":""}" role="dialog">${fn(m)}</div></div>`;
@@ -1617,7 +1687,7 @@ function vHutang(){
   if(S.hut)return vHutDetail();
   const rows=S.pelanggan.map(p=>{const ns=notaHutang(p.id);return{p,ns,h:ns.reduce((a,n)=>a+sisaNota(n),0)};}).filter(r=>S.hutAll||r.h>0).sort((a,b)=>b.h-a.h||byNama(a.p,b.p));
   const tot=totalHutang();const n=S.pelanggan.filter(p=>sisaHutang(p.id)>0).length;
-  return `<div class="bo-bilah">${periodCtl(S.riw,"riwp")}<div class="baris-tombol"><button class="btn" data-act="openlama">+ Hutang lama</button></div></div>
+  return `${alat({k:"hutang",periode:{o:S.riw,act:"riwp"},aksi:`<button class="btn" data-act="openlama">+ Hutang lama</button>`})}
   ${(()=>{const [ps,pe]=rangeOf(S.riw);const inR=iso=>iso&&new Date(iso)>=ps&&new Date(iso)<pe;const tertua=S.nota.filter(x=>x.status==="dibayar"&&sisaNota(x)>0).sort((a,b)=>a.dibayarAt<b.dibayarAt?-1:1)[0];
     const baru=S.nota.filter(x=>x.status==="dibayar"&&inR(x.dibayarAt)).reduce((a,x)=>a+(x.bayar?.hutang||0),0);const dib=S.bayar.filter(b=>b.metode!=="retur"&&inR(b.tanggal)).reduce((a,b)=>a+b.jumlah,0);
     return kartuMini([{judul:"Total hutang sekarang",nilai:rp(tot),warna:tot?"kuning":""},{judul:"Pelanggan berhutang",nilai:n},{judul:"Hutang baru (periode)",nilai:rp(baru)},{judul:"Dibayar (periode)",nilai:rp(dib)},{judul:"Nota tertua",nilai:tertua?tgl(tertua.dibayarAt):"–"}]);})()}
@@ -1699,6 +1769,21 @@ function kalHari(o,act){const c=S.ppCal;const [y,m]=c.ym.split("-").map(Number);
   return `<div class="kal__kepala"><button class="kal__nav" data-act="ppnav" data-d="-1" aria-label="Bulan sebelumnya">‹</button><button class="kal__judul" data-act="ppview" data-v="bulan">${new Date(y,m-1,1).toLocaleDateString("id-ID",{month:"long",year:"numeric"})}</button><button class="kal__nav" data-act="ppnav" data-d="1" aria-label="Bulan berikutnya" ${c.ym>=ymNow?"disabled":""}>›</button></div>
   <div class="kal__hari">${["Sen","Sel","Rab","Kam","Jum","Sab","Min"].map(h=>`<span class="kal__nama">${h}</span>`).join("")}${cells.join("")}</div>
   <p class="kal__bantu">${c.mulai?`Mulai ${tgl(c.mulai+"T00:00")} · ketuk tanggal akhir (ketuk lagi tanggal yang sama untuk satu hari)`:"Ketuk tanggal awal, lalu tanggal akhir."}</p>`;}
+/* ===== Bilah alat: cari + periode + filter jadi satu, bisa disembunyikan ===== */
+let ALAT={};try{ALAT=JSON.parse(localStorage.getItem("tkl-alat")||"{}");}catch(e){}
+const IKON_CARI=`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>`;
+const IKON_FILTER=`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg>`;
+const IKON_KAL=`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16v14H4zM4 10h16M8 3v4M16 3v4"/></svg>`;
+function periodeRingkas(o){const nama=PERIODE.find(x=>x[0]===o.p)[1];const ym=o.month||dkey(new Date()).slice(0,7);const j=o.p==="pilih"?new Date(ym+"-01T00:00").toLocaleDateString("id-ID",{month:"long",year:"numeric"}):nama;const t=teksPeriode(o);return t&&t!==j?j+" · "+t:j;}
+function alat(o){if(!o.cari&&!(o.filter||[]).some(f=>f.html))return `<div class="alat alat--tanpa-cari"><div class="alat__baris">${o.periode?periodCtl(o.periode.o,o.periode.act):""}${o.aksi?`<div class="alat__aksi">${o.aksi}</div>`:""}</div></div>`;const buka=!!ALAT[o.k];const F=(o.filter||[]);const aktif=F.filter(f=>f.aktif);const per=o.periode?periodeRingkas(o.periode.o):"";
+  const adaPanel=!!(o.periode||F.some(f=>f.html));
+  const tombol=adaPanel?`<button class="alat__toggle ${aktif.length?"alat__toggle--aktif":""}" data-act="alat" data-k="${o.k}" aria-expanded="${buka}" title="${buka?"Sembunyikan":"Tampilkan"} periode &amp; filter">${o.cari?IKON_FILTER:IKON_KAL}<span class="alat__teks">${o.cari?(o.periode?"Periode &amp; filter":"Filter"):esc(per)}</span>${aktif.length?`<span class="alat__badge">${aktif.length}</span>`:""}<span class="alat__panah" aria-hidden="true">▾</span></button>`:"";
+  const ring=[o.cari&&per?per:null,...aktif.map(f=>f.teks)].filter(Boolean);
+  return `<div class="alat ${buka?"alat--buka":""} ${o.cari?"":"alat--tanpa-cari"}">
+  <div class="alat__baris">${o.cari?`<label class="alat__cari">${IKON_CARI}${o.cari}</label>`:""}${tombol}${o.aksi?`<div class="alat__aksi">${o.aksi}</div>`:""}</div>
+  ${buka&&adaPanel?`<div class="alat__panel">${o.periode?`<div class="alat__grup"><span class="alat__label">Periode</span>${periodCtl(o.periode.o,o.periode.act)}</div>`:""}${F.filter(f=>f.html).map(f=>`<div class="alat__grup">${f.label?`<span class="alat__label">${f.label}</span>`:""}${f.html}</div>`).join("")}${aktif.length?`<button class="link alat__reset" data-act="alatreset" data-k="${o.k}">Hapus filter</button>`:""}</div>`
+   :ring.length?`<div class="alat__ringkas">${ring.map(t=>`<button class="alat__chip" data-act="alat" data-k="${o.k}">${esc(t)}</button>`).join("")}${aktif.length?`<button class="link" data-act="alatreset" data-k="${o.k}">Hapus filter</button>`:""}</div>`:""}
+  </div>`;}
 function periodeBO(aksi){return `<div class="bo-bilah">${periodCtl(S.lap,"lapp")}${aksi?`<div class="baris-tombol">${aksi}</div>`:""}</div>`;}
 /* ================= Impor produk dari Excel ================= */
 const IMPOR_KOLOM=["Nama barang*","Kategori*","Kode cepat","Satuan dasar*","Harga beli","Harga jual*","Satuan besar 1","Isi 1 (dalam satuan dasar)","Harga beli 1","Harga jual 1","Satuan besar 2","Isi 2 (dalam satuan dasar)","Harga beli 2","Harga jual 2","Grosir mulai (jumlah satuan dasar)","Harga grosir per satuan dasar","Grosir 2 mulai","Harga grosir 2","Jenis (rokok / mi)","Link foto (opsional)","Pabrikan / merek"];
@@ -1788,7 +1873,8 @@ function vRiwayat(){
   const cara=x=>{if(x.k==="jual"){const b=x.n.bayar||{};return [b.tunai>0?"Tunai":"",b.transfer>0?"Transfer":"",b.hutang?"Hutang":"",x.n.kredit?"Retur":""].filter(Boolean).join(" + ")||"–";}if(x.k==="bayar")return x.b.metode==="transfer"?"Transfer":"Tunai";if(x.k==="retur")return({uang:"Uang kembali",hutang:"Potong hutang",tukar:"Tukar sama",ganti:"Ganti barang"})[x.r.penyelesaian];return"–";};
   const flags=x=>x.k==="jual"?[x.n.items.some(i=>i.pesan!=null&&i.qty!==i.pesan)?'<span class="chip warn">Pesan≠Ada</span>':"",Object.keys(x.n.returQty||{}).length?'<span class="chip">ada retur</span>':""].join(" "):"";
   const nameCell=x=>x.pid&&pelg(x.pid)?`<button class="link" data-act="openpel" data-id="${x.pid}">${esc(x.nama)}</button>`:x.nama&&x.nama!=="-"?`<button class="link" data-act="riwname" data-q="${esc(x.nama)}">${esc(x.nama)}</button>`:`<span class="muted">-</span>`;
-  return `  <section class="panel"><div class="bo-bilah">${periodCtl(o,"riwp")}<div class="field" style="flex:1 1 260px;max-width:420px"><input type="search" id="riwq" data-riwq="1" placeholder="Cari no. nota atau nama…" value="${esc(o.q)}"></div></div>
+  const RF={jual:"Penjualan",bayar:"Bayar hutang",retur:"Retur",batal:"Batal"};
+  return `  <section class="panel">${alat({k:"riwayat",cari:`<input type="search" id="riwq" data-riwq="1" placeholder="Cari no. nota atau nama…" value="${esc(o.q)}" autocomplete="off">`,periode:{o,act:"riwp"},filter:[{html:"",aktif:o.f!=="semua",teks:RF[o.f]||""}]})}
   ${kartuMini([{judul:"Semua",nilai:cJ.n+cB.n+cR.n+cX.n,act:"riwf",v:"semua",aktif:o.f==="semua"},{judul:"Penjualan",nilai:`${cJ.n} · ${rp(cJ.t)}`,act:"riwf",v:"jual",aktif:o.f==="jual"},{judul:"Bayar hutang",nilai:`${cB.n} · ${rp(cB.t)}`,act:"riwf",v:"bayar",aktif:o.f==="bayar"},{judul:"Retur",nilai:`${cR.n} · ${rp(-cR.t)}`,act:"riwf",v:"retur",aktif:o.f==="retur"},{judul:"Batal",nilai:cX.n,act:"riwf",v:"batal",aktif:o.f==="batal",warna:cX.n?"merah":""}])}
   ${rows.length?`<div class="tw"><table><thead><tr><th>Jam</th><th>No.</th><th>Jenis</th><th>Pelanggan</th><th>Cara bayar</th><th class="n">Total</th></tr></thead><tbody>
   ${Object.keys(groups).sort().reverse().map(k=>{const g=groups[k];const sum=g.filter(x=>x.k==="jual").reduce((a,x)=>a+x.n.subtotal-(x.n.potongan||0),0);return `<tr class="day"><td colspan="5">${hari(k)}</td><td class="n">${rp(sum)}</td></tr>`+g.map(x=>`<tr class="click" data-act="riwopen" data-k="${x.k}" data-id="${x.n?.id||x.b?.id||x.r?.id}"><td>${jam(x.t)}</td><td style="font-family:var(--mono);font-weight:600">${esc(x.no)}</td><td><span class="chip ${KL[x.k][1]}">${KL[x.k][0]}</span> ${flags(x)}</td><td>${nameCell(x)}</td><td>${cara(x)}</td><td class="n">${x.k==="batal"?`<s class="muted">${rp(x.total)}</s>`:rp(x.total)}</td></tr>`).join("");}).join("")}
@@ -1855,7 +1941,7 @@ function vLapPenj(){
   const o=S.riw;const [s,e]=rangeOf(o);const R=lapData(s,e);
   const days=[];if(+e-+s>864e5){const end=Math.min(+e,+new Date());for(let t=+s;t<end;t+=864e5){const k=dkey(new Date(t));days.push({k,o:R.ns.filter(n=>dkey(n.dibayarAt)===k).reduce((a,n)=>a+n.subtotal-(n.potongan||0),0)});}}
   const maxD=Math.max(1,...days.map(d=>d.o));
-  return `<div class="bo-bilah">${periodCtl(o,"riwp")}<div class="baris-tombol"><button class="btn" data-act="printharian" data-k="riwp">Cetak laporan harian</button></div></div>
+  return `${alat({k:"lappenj",periode:{o,act:"riwp"},aksi:`<button class="btn" data-act="printharian" data-k="riwp">Cetak harian</button>`})}
   ${kartuMini([{judul:"Nota",nilai:R.nNota},{judul:"Omzet bersih",nilai:rp(R.omzet),warna:"biru"},{judul:"Tunai masuk",nilai:rp(R.inT)},{judul:"Transfer masuk",nilai:rp(R.inR)},{judul:"Hutang baru",nilai:rp(R.hutBaru),warna:R.hutBaru?"kuning":""},{judul:"Retur",nilai:rp(R.returNilai),warna:R.returNilai?"merah":""}])}
   <div class="cols">
   <section class="panel"><h2>Penjualan per cara bayar</h2><div class="tw"><table><tbody><tr><td>Tunai</td><td class="n">${rp(R.belT)}</td></tr><tr><td>Transfer</td><td class="n">${rp(R.belR)}</td></tr><tr><td>Hutang</td><td class="n">${rp(R.hutBaru)}</td></tr>${R.kredit?`<tr><td>Dibayar dengan retur (tukar)</td><td class="n">${rp(R.kredit)}</td></tr>`:""}<tr><td>Potongan</td><td class="n">−${rp(R.pot)}</td></tr><tr><td>Retur</td><td class="n">−${rp(R.returNilai)}</td></tr></tbody><tfoot><tr><td>Omzet bersih</td><td class="n">${rp(R.omzet)}</td></tr></tfoot></table></div></section>
@@ -1874,7 +1960,7 @@ function vLaporan(){
   const label=s.toLocaleDateString("id-ID",{day:"numeric",month:"long",year:"numeric"})+(+e-+s>864e5?" – "+new Date(+e-1).toLocaleDateString("id-ID",{day:"numeric",month:"long",year:"numeric"}):"");
   const ret=R.retur;const alasan={};ret.forEach(r=>{alasan[r.alasan]=(alasan[r.alasan]||0)+r.nilai;});
   const hutPel=S.pelanggan.map(p=>{const baru=R.ns.filter(n=>n.pelangganId===p.id).reduce((a,n)=>a+(n.bayar?.hutang||0),0);const dib=S.bayar.filter(b=>b.pelangganId===p.id&&new Date(b.tanggal)>=s&&new Date(b.tanggal)<e).reduce((a,b)=>a+b.jumlah,0);return{p,baru,dib,sisa:sisaHutang(p.id)};}).filter(x=>x.baru||x.dib||x.sisa).sort((a,b)=>b.sisa-a.sisa);
-  return `${periodeBO(`<button class="btn" data-act="printharian">Cetak laporan harian</button><button class="btn" data-act="pdfinfo">Unduh PDF</button>`)}
+  return `${alat({k:"laporan",periode:{o:S.lap,act:"lapp"},aksi:`<button class="btn" data-act="printharian">Cetak harian</button><button class="btn" data-act="pdfinfo">Unduh PDF</button>`})}
   ${kartuRingkas([{judul:"Omzet bersih",nilai:rp(R.omzet),catatan:`${R.nNota} nota · retur ${rp(R.returNilai)}`,warna:"utama"},{judul:"Estimasi margin",nilai:rp(R.margin),catatan:`${pr(R.margin)} dari penjualan`,warna:R.margin<0?"merah":""},{judul:"Uang masuk",nilai:rp(R.inT+R.inR),catatan:`tunai ${rp(R.inT)} · transfer ${rp(R.inR)}`},{judul:"Hutang pelanggan",nilai:rp(totalHutang()),catatan:`baru di periode ${rp(R.hutBaru)}`}])}
   <p class="hint" style="margin:0">Margin adalah estimasi: harga jual dikurangi harga beli yang tercatat di produk saat nota dibayar, dikurangi potongan dan retur.</p>
   <div class="cols">
@@ -1901,25 +1987,29 @@ function vProduk(){
   const aktif=S.produk.filter(p=>p.aktif!==false);const laku=aktif.filter(p=>J[p.id]);const tidak=aktif.filter(p=>!J[p.id]);const tipis=aktif.filter(p=>{const u=untungMin(p);return u!=null&&u<5;});
   const totJ=Object.values(J).reduce((a,x)=>a+x.o,0);const F=S.lap.prodF;
   const kats=[...new Set(S.produk.map(p=>p.kategori))].sort();
-  return `${periodeBO(`${S.produk.length?"":`<button class="btn" data-act="contoh">Muat contoh data</button>`}<button class="btn" data-act="imporbuka">Impor Excel</button><button class="btn primary" data-act="newprod">+ Produk</button>`)}
+  const nF=S.produk.filter(p=>!p.foto&&(!S.prodK||p.kategori===S.prodK)).length,nB=S.produk.filter(p=>!bcList(p).length&&(!S.prodK||p.kategori===S.prodK)).length;
+  const FT={laku:"Terjual di periode",tidak:"Tidak terjual",tipis:"Untung tipis"};
+  return `${alat({k:"produk",cari:`<input type="search" id="pq" data-prodq="1" placeholder="Cari nama, merek, SKU, atau scan barcode…" value="${esc(S.prodQ)}" autocomplete="off">`,periode:{o:S.lap,act:"lapp"},
+    filter:[{label:"Kategori",html:`<select data-prodk="1" aria-label="Kategori"><option value="">Semua kategori</option>${kats.map(k=>`<option ${k===S.prodK?"selected":""}>${esc(k)}</option>`).join("")}</select>`,aktif:!!S.prodK,teks:S.prodK},
+      {label:"Tampilkan",html:`<div class="alat__centang"><label class="centang"><input type="checkbox" data-tanpafoto="1" ${S.prodTanpaFoto?"checked":""}> Belum ada foto (${nF})</label><label class="centang"><input type="checkbox" data-tanpabc="1" ${S.prodTanpaBc?"checked":""}> Belum ada barcode (${nB})</label></div>`,aktif:S.prodTanpaFoto||S.prodTanpaBc,teks:[S.prodTanpaFoto?"Belum ada foto":"",S.prodTanpaBc?"Belum ada barcode":""].filter(Boolean).join(" · ")},
+      {html:"",aktif:F!=="semua",teks:FT[F]||""}],
+    aksi:`${S.produk.length?"":`<button class="btn" data-act="contoh">Muat contoh data</button>`}<button class="btn primary" data-act="tambahbuka">+ Produk</button>`})}
   ${kartuRingkas([{judul:"Barang aktif",nilai:aktif.length,catatan:`${S.produk.length-aktif.length} nonaktif · ${kats.length} kategori`,act:"prodf",v:"semua",aktif:F==="semua"},
     {judul:"Terjual di periode",nilai:`${laku.length} barang`,catatan:`penjualan ${rp(totJ)}`,act:"prodf",v:"laku",aktif:F==="laku",warna:F==="laku"?"":""},
     {judul:"Tidak terjual",nilai:`${tidak.length} barang`,catatan:"aktif tapi tidak laku di periode ini",act:"prodf",v:"tidak",aktif:F==="tidak"},
     {judul:"Untung tipis",nilai:`${tipis.length} barang`,catatan:"untung di bawah 5% atau rugi",act:"prodf",v:"tipis",aktif:F==="tipis",warna:tipis.some(p=>untungMin(p)<0)?"merah":""}])}
-  <section class="panel"><div class="scan-baru"><div><b>Tambah produk lebih cepat</b><span class="hint">Scan barcode kemasan (pakai alat scanner atau kamera). Barang sudah terdaftar langsung terbuka. Barcode baru bisa dipasang ke produk yang sudah ada, atau dibuat produk baru.</span></div><button class="btn primary" data-act="kambuka" data-target="prod">${IKON_SCAN} Scan pakai kamera</button></div>
-  <div class="row"><div class="field"><input type="search" id="pq" data-prodq="1" placeholder="Cari nama, pabrikan, SKU, kode, atau scan barcode…" value="${esc(S.prodQ)}"></div><div class="field" style="flex:0 1 230px"><select data-prodk="1" aria-label="Kategori"><option value="">Semua kategori</option>${kats.map(k=>`<option ${k===S.prodK?"selected":""}>${esc(k)}</option>`).join("")}</select></div><label class="centang" style="flex:0 0 auto;align-self:center"><input type="checkbox" data-tanpafoto="1" ${S.prodTanpaFoto?"checked":""}> Belum ada foto (${S.produk.filter(p=>!p.foto&&(!S.prodK||p.kategori===S.prodK)).length})</label><label class="centang" style="flex:0 0 auto;align-self:center"><input type="checkbox" data-tanpabc="1" ${S.prodTanpaBc?"checked":""}> Belum ada barcode (${S.produk.filter(p=>!p.satuan.some(s=>s.barcode)&&(!S.prodK||p.kategori===S.prodK)).length})</label></div>
-  ${F!=="semua"?`<p class="catatan catatan--info">Menampilkan: ${({laku:"barang yang terjual di periode, terlaris dulu",tidak:"barang aktif yang tidak terjual di periode",tipis:"barang dengan untung di bawah 5% atau rugi"})[F]} · <button class="link" data-act="prodf" data-v="semua">tampilkan semua</button></p>`:""}
+  <section class="panel">
   <div class="list" id="plist">${prodList()}</div></section>`;
 }
 function prodList(){const J=S._J||{};const q=S.prodQ;const F=S.lap.prodF;
-  let list=S.produk.filter(p=>cocok(p.nama+" "+p.sku+" "+(p.kode||"")+" "+(p.pabrikan||"")+" "+bcStr(p),q)&&(!S.prodK||p.kategori===S.prodK)&&(!S.prodTanpaFoto||!p.foto)&&(!S.prodTanpaBc||!p.satuan.some(s=>s.barcode)));
+  let list=S.produk.filter(p=>cocok(p.nama+" "+p.sku+" "+(p.kode||"")+" "+(p.pabrikan||"")+" "+bcStr(p),q)&&(!S.prodK||p.kategori===S.prodK)&&(!S.prodTanpaFoto||!p.foto)&&(!S.prodTanpaBc||!bcList(p).length));
   if(F==="laku")list=list.filter(p=>J[p.id]).sort((a,b)=>J[b.id].o-J[a.id].o);
   else if(F==="tidak")list=list.filter(p=>p.aktif!==false&&!J[p.id]).sort(byNama);
   else if(F==="tipis")list=list.filter(p=>p.aktif!==false&&untungMin(p)!=null&&untungMin(p)<5).sort((a,b)=>untungMin(a)-untungMin(b));
   else list.sort((a,b)=>(a.aktif===false)-(b.aktif===false)||byNama(a,b));
   return list.length?list.map(prow).join(""):`<div class="empty"><b>${S.produk.length?"Tidak ada yang cocok":"Belum ada produk"}</b><span>${S.produk.length?"Coba ubah pencarian, kategori, atau periode.":"Tambah barang satu per satu, atau muat contoh data untuk mencoba."}</span></div>`;}
 function untung(s){if(!s.beli||!s.jual)return null;return{rp:s.jual-s.beli,pct:(s.jual-s.beli)/s.beli*100};}
-function prow(p){const d=p.satuan[0].nama;return `<div class="prow ${p.aktif===false?"off":""}"><div class="prow__isi">${owner()?`<label class="pfoto ${p.foto?"":"pfoto--kosong"}" title="${p.foto?"Ganti foto":"Ambil foto"}">${S.fotoSibuk===p.id?`<span>…</span>`:p.foto?fotoImg(p,""):`<span>📷<br>Foto</span>`}<input type="file" accept="image/*" capture="environment" data-fotocepat="${p.id}" hidden aria-label="Foto ${esc(p.nama)}"></label>`:p.foto?`<span class="pfoto">${fotoImg(p,"")}</span>`:""}<div><div class="pname">${esc(p.nama)}${p.contoh?'<span class="tag-c">contoh</span>':""}${p.aktif===false?' <span class="chip">nonaktif</span>':""}</div><div class="sku">${esc(p.sku)}${p.kode?" · kode "+esc(p.kode):""} · ${esc(p.kategori)}${p.jenis?" "+esc(p.jenis):""}${p.pabrikan?" · "+esc(p.pabrikan):""}</div><div class="pmeta">${p.satuan.map((s,i)=>{const u=untung(s);const per=s.jual/s.isi;const warn=i>0&&per>p.satuan[i-1].jual/p.satuan[i-1].isi;return `<span class="chip ${warn?"bad":u&&u.pct<5?"warn":"blue"}">${warn?"⚠ ":""}${esc(s.nama)}${s.isi>1?" isi "+fq(s.isi)+" "+esc(d):""} · ${rp(s.jual)}${u?" · "+pctf(u.pct):""}</span>`;}).join("")}${p.tingkat?.length?`<span class="chip good">grosir ${p.tingkat.length} tingkat</span>`:""}</div></div></div><div class="prow__kanan">${(()=>{const x=(S._J||{})[p.id];return x?`<div class="lc-nilai"><strong>${rp(x.o)}</strong><span class="teks-pudar">terjual ${fq(x.q)} ${esc(d.toLowerCase())} · margin ${rp(x.m)}</span></div>`:`<div class="lc-nilai"><span class="teks-pudar">belum terjual di periode</span></div>`;})()}${owner()?`<button class="onoff ${p.aktif!==false?"onoff--on":""}" data-act="prodaktif" data-id="${p.id}" role="switch" aria-checked="${p.aktif!==false}" title="${p.aktif!==false?"Aktif dijual — ketuk untuk nonaktifkan":"Nonaktif — ketuk untuk aktifkan"}"><span class="onoff__knob"></span><span class="onoff__teks">${p.aktif!==false?"ON":"OFF"}</span></button>`:""}${owner()?(()=>{const n=p.satuan.filter(s=>s.barcode).length;return `<button class="btn sm ${n?"":"primary"}" data-act="bcisibuka" data-id="${p.id}" title="${n?"Barcode: "+p.satuan.filter(s=>s.barcode).map(s=>s.nama+" "+s.barcode).join(", "):"Belum ada barcode"}">${IKON_SCAN} ${n?(n===p.satuan.length?"Barcode ✓":"Barcode "+n+"/"+p.satuan.length):"+ Barcode"}</button>`;})():""}<button class="btn sm" data-act="editprod" data-id="${p.id}">Ubah</button></div></div>`;}
+function prow(p){const d=p.satuan[0].nama;return `<div class="prow ${p.aktif===false?"off":""}"><div class="prow__isi">${owner()?`<label class="pfoto ${p.foto?"":"pfoto--kosong"}" title="${p.foto?"Ganti foto":"Ambil foto"}">${S.fotoSibuk===p.id?`<span>…</span>`:p.foto?fotoImg(p,""):`<span>📷<br>Foto</span>`}<input type="file" accept="image/*" capture="environment" data-fotocepat="${p.id}" hidden aria-label="Foto ${esc(p.nama)}"></label>`:p.foto?`<span class="pfoto">${fotoImg(p,"")}</span>`:""}<div><div class="pname">${esc(p.nama)}${p.contoh?'<span class="tag-c">contoh</span>':""}${p.aktif===false?' <span class="chip">nonaktif</span>':""}</div><div class="sku">${esc(p.sku)}${p.kode?" · kode "+esc(p.kode):""} · ${esc(p.kategori)}${p.jenis?" "+esc(p.jenis):""}${p.pabrikan?" · "+esc(p.pabrikan):""}</div><div class="pmeta">${p.satuan.map((s,i)=>{const u=untung(s);const per=s.jual/s.isi;const warn=i>0&&per>p.satuan[i-1].jual/p.satuan[i-1].isi;return `<span class="chip ${warn?"bad":u&&u.pct<5?"warn":"blue"}">${warn?"⚠ ":""}${esc(s.nama)}${s.isi>1?" isi "+fq(s.isi)+" "+esc(d):""} · ${rp(s.jual)}${u?" · "+pctf(u.pct):""}</span>`;}).join("")}${p.tingkat?.length?`<span class="chip good">grosir ${p.tingkat.length} tingkat</span>`:""}</div></div></div><div class="prow__kanan">${(()=>{const x=(S._J||{})[p.id];return x?`<div class="lc-nilai"><strong>${rp(x.o)}</strong><span class="teks-pudar">terjual ${fq(x.q)} ${esc(d.toLowerCase())} · margin ${rp(x.m)}</span></div>`:`<div class="lc-nilai"><span class="teks-pudar">belum terjual di periode</span></div>`;})()}${owner()?`<button class="onoff ${p.aktif!==false?"onoff--on":""}" data-act="prodaktif" data-id="${p.id}" role="switch" aria-checked="${p.aktif!==false}" title="${p.aktif!==false?"Aktif dijual — ketuk untuk nonaktifkan":"Nonaktif — ketuk untuk aktifkan"}"><span class="onoff__knob"></span><span class="onoff__teks">${p.aktif!==false?"ON":"OFF"}</span></button>`:""}${owner()?(()=>{const L=bcList(p);return `<button class="btn sm ${L.length?"":"primary"}" data-act="bcisibuka" data-id="${p.id}" title="${L.length?"Barcode: "+L.join(", "):"Belum ada barcode"}">${IKON_SCAN} ${L.length?"Barcode ✓":"+ Barcode"}</button>`;})():""}<button class="btn sm" data-act="editprod" data-id="${p.id}">Ubah</button></div></div>`;}
 function vProdForm(){
   const e=S.edit;const st=setting();const d=e.satuan[0]?.nama||"satuan dasar";
   return `<div><button class="back" data-act="cancelprod">← Daftar produk</button></div>
@@ -1928,18 +2018,19 @@ function vProdForm(){
   <div class="field"><label for="pf-kat">Kategori</label><select id="pf-kat" data-pf="kategori" ${e.id?"":""}>${st.kategori.map(k=>`<option ${k.nama===e.kategori?"selected":""}>${esc(k.nama)}</option>`).join("")}</select></div>
   ${punyaJenis(e.kategori)?`<div class="field" style="flex:0 1 150px"><label for="pf-jenis">Jenis ${e.kategori==="Rokok"?"rokok":"mi"}</label><select id="pf-jenis" data-pf="jenis"><option value="">–</option>${jenisOf(e.kategori).map(j=>`<option ${e.jenis===j?"selected":""}>${j}</option>`).join("")}</select></div>`:""}<div class="field" style="flex:0 1 150px"><label for="pf-kode">Kode cepat</label><input id="pf-kode" data-pf="kode" value="${esc(e.kode||"")}" placeholder="opsional"></div>
   <div class="field" style="flex:1 1 180px"><label for="pf-pabrikan">Pabrikan / merek</label><input id="pf-pabrikan" data-pf="pabrikan" list="dl-pabrikan" value="${esc(e.pabrikan||"")}" placeholder="mis. Wismilak, Djarum"><datalist id="dl-pabrikan">${[...new Set(S.produk.map(p=>p.pabrikan).filter(Boolean))].sort().map(x=>`<option value="${esc(x)}">`).join("")}</datalist></div></div>
+  ${pfBarcodeHTML(e)}
   <div class="foto-form"><div class="foto-form__gambar">${e.foto?`<img src="${esc(e.foto)}" alt="Foto ${esc(e.nama)}">`:`<span>Belum ada foto</span>`}</div>
    <div class="foto-form__aksi"><b>Foto barang</b><span class="hint">Foto kemasan dari depan supaya kasir tidak salah ambil.</span>
    <div class="row">${S.fotoSibuk==="form"?`<span class="teks-pudar">Menyimpan foto…</span>`:`<label class="btn sm">📷 Ambil foto<input type="file" accept="image/*" capture="environment" data-fotoform="1" hidden></label><label class="btn sm">Pilih dari galeri<input type="file" accept="image/*" data-fotoform="1" hidden></label><button class="btn sm" data-act="fotolinkbuka">🔗 Tempel link gambar</button>${e.foto?`<button class="btn sm" data-act="fotohapus">Hapus foto</button>`:""}`}</div>
    ${S.fotoLink?`<div class="row" style="align-items:center"><input id="pf-fotolink" type="url" placeholder="https://… (salin alamat gambar dari situs resmi)" style="flex:1 1 240px"><button class="btn sm primary" data-act="fotolinkpakai">Pakai</button><button class="btn sm" data-act="fotolinkbuka">Batal</button></div><span class="hint">Di HP: buka gambar di situs, tekan lama → "Salin alamat gambar", lalu tempel di sini.</span>`:""}</div></div>
-  <div><h2>Satuan & harga</h2><p class="hint">Baris pertama = satuan terkecil yang dijual. Satuan besar ditulis isinya dalam satuan di atasnya. Barcode: klik kolomnya lalu scan kemasan; tiap satuan (mis. bungkus dan karton) punya barcode sendiri.</p></div>
-  <div class="tw" style="border:0"><table class="ftable"><thead><tr><th>Satuan</th><th>Isi</th><th class="n">Harga beli</th><th class="n">Harga jual</th><th class="n">Untung %</th><th>Per ${esc(d)}</th><th>Barcode</th><th></th></tr></thead><tbody>
+  <div><h2>Satuan & harga</h2><p class="hint">Baris pertama = satuan terkecil yang dijual. Satuan besar ditulis isinya dalam satuan di atasnya.</p></div>
+  <div class="tw" style="border:0"><table class="ftable"><thead><tr><th>Satuan</th><th>Isi</th><th class="n">Harga beli</th><th class="n">Harga jual</th><th class="n">Untung %</th><th>Per ${esc(d)}</th><th></th></tr></thead><tbody>
   ${e.satuan.map((s,i)=>`<tr><td><select data-sf="nama" data-i="${i}" aria-label="Satuan" style="min-width:110px">${st.satuan.map(x=>`<option ${x===s.nama?"selected":""}>${esc(x)}</option>`).join("")}</select></td>
   <td>${i===0?'<span class="chip blue">dasar</span>':`<div style="display:flex;gap:6px;align-items:center;white-space:nowrap"><input inputmode="numeric" data-sf="rel" data-i="${i}" value="${esc(s.rel)}" style="width:64px" aria-label="Isi"> <span class="muted">${esc(e.satuan[i-1].nama)}</span></div>`}</td>
   <td><input inputmode="numeric" data-sf="beli" data-i="${i}" value="${esc(s.beli)}" placeholder="0" style="width:110px;text-align:right" aria-label="Harga beli"></td>
   <td><input inputmode="numeric" data-sf="jual" data-i="${i}" value="${esc(s.jual)}" placeholder="0" style="width:110px;text-align:right" aria-label="Harga jual"></td>
   <td><input inputmode="decimal" data-sf="pct" data-i="${i}" value="${esc(s.pct??pctVal(s))}" placeholder="%" style="width:72px;text-align:right" aria-label="Untung persen"></td>
-  <td id="per-${i}" style="white-space:nowrap;font-size:12.5px">${perHTML(i)}</td><td><div style="display:flex;align-items:center"><input data-sf="barcode" data-i="${i}" value="${esc(s.barcode||"")}" placeholder="scan / ketik" autocomplete="off" style="width:140px" aria-label="Barcode ${esc(s.nama)}"><button class="btn sm" data-act="kambuka" data-target="form:${i}" title="Scan pakai kamera" aria-label="Scan barcode ${esc(s.nama)} pakai kamera" style="margin-left:4px">${IKON_SCAN}</button></div></td><td>${i>0?`<button class="x" data-act="rmsat" data-i="${i}" aria-label="Hapus satuan">×</button>`:""}</td></tr>`).join("")}
+  <td id="per-${i}" style="white-space:nowrap;font-size:12.5px">${perHTML(i)}</td><td>${i>0?`<button class="x" data-act="rmsat" data-i="${i}" aria-label="Hapus satuan">×</button>`:""}</td></tr>`).join("")}
   </tbody></table></div>
   <div><button class="btn sm" data-act="addsatrow">+ Satuan besar</button></div>
   <div><h2>Harga grosir bertingkat</h2><p class="hint">Harga per ${esc(d)} turun mulai jumlah tertentu, berlaku untuk seluruh jumlah. Kosongkan bila tidak dipakai.</p></div>
@@ -1968,15 +2059,16 @@ function vPelanggan(){
   else if(F==="hutang")list=list.filter(p=>sisaHutang(p.id)>0).sort((a,b)=>sisaHutang(b.id)-sisaHutang(a.id));
   else if(F==="baru")list=list.filter(p=>p.dibuat&&new Date(p.dibuat)>=ps&&new Date(p.dibuat)<pe).sort(byNama);
   else list.sort(byNama);
-  return `${periodeBO(`<button class="btn primary" data-act="newpel">+ Pelanggan</button>`)}
+  const PF={aktif:"Belanja di periode",hutang:"Berhutang",baru:"Baru di periode"};
+  return `${alat({k:"pelanggan",cari:`<input type="search" id="pelq" data-pelq="1" placeholder="Cari nama, telepon, alamat…" value="${esc(S.pelQ)}" autocomplete="off">`,periode:{o:S.lap,act:"lapp"},filter:[{html:"",aktif:F!=="semua",teks:PF[F]||""}],aksi:`<button class="btn primary" data-act="newpel">+ Pelanggan</button>`})}
   ${kartuRingkas([{judul:"Pelanggan terdaftar",nilai:S.pelanggan.length,catatan:`${baru} baru di periode ini`,act:"pelf",v:F==="baru"?"semua":"baru",aktif:F==="baru"},
     {judul:"Belanja di periode",nilai:`${aktifN} pelanggan`,catatan:`total ${rp(aktifO)}`,act:"pelf",v:"aktif",aktif:F==="aktif"},
     {judul:"Berhutang",nilai:`${hut.length} pelanggan`,catatan:`sisa ${rp(totalHutang())}`,act:"pelf",v:"hutang",aktif:F==="hutang",warna:hut.length?"merah":""},
     {judul:"Pembeli tidak terdaftar",nilai:`${B.bebasN} nota`,catatan:`total ${rp(B.bebasO)} · lihat di Riwayat`}])}
   ${S.pelNew?`<section class="panel"><h2>Pelanggan baru</h2><div class="row"><div class="field"><label for="pn-n">Nama</label><input id="pn-n"></div><div class="field"><label for="pn-t">No. telepon</label><input id="pn-t" inputmode="tel"></div></div><div class="field"><label for="pn-a">Alamat</label><textarea id="pn-a" style="min-height:44px"></textarea></div><div class="row"><button class="btn" data-act="cancelpel">Batal</button><button class="btn primary" data-act="savepel">Simpan</button></div></section>`:""}
-  <section class="panel"><input type="search" id="pelq" data-pelq="1" placeholder="Cari nama, telepon, alamat…" value="${esc(S.pelQ)}">
+  <section class="panel">
   ${F!=="semua"?`<p class="catatan catatan--info">Menampilkan: ${({aktif:"pelanggan yang belanja di periode, terbesar dulu",hutang:"pelanggan yang masih berhutang",baru:"pelanggan yang didaftarkan di periode"})[F]} · <button class="link" data-act="pelf" data-v="semua">tampilkan semua</button></p>`:""}
-  ${list.length?`<div class="tw"><table><thead><tr><th>Nama</th><th>No. telepon</th><th>Alamat</th><th class="n">Nota periode</th><th class="n">Belanja periode</th><th>Terakhir belanja</th><th class="n">Sisa hutang</th></tr></thead><tbody>${list.map(p=>{const h=sisaHutang(p.id);const x=B.m[p.id];return `<tr class="click" data-act="openpel" data-id="${p.id}"><td><b>${esc(p.nama)}</b>${p.contoh?'<span class="tag-c">contoh</span>':""}${(p.diskon||[]).length?' <span class="chip good">diskon</span>':""}</td><td>${esc(p.telp||"–")}</td><td>${esc(p.alamat||"–")}</td><td class="n">${x?x.n+"×":"–"}</td><td class="n">${x?rp(x.o):"–"}</td><td>${x?tgl(x.last):"–"}</td><td class="n">${h?`<b style="color:var(--warn)">${rp(h)}</b>`:"–"}</td></tr>`;}).join("")}</tbody>
+  ${list.length?`<div class="tw"><table><thead><tr><th>Nama</th><th class="hp-sembunyi">No. telepon</th><th class="hp-sembunyi">Alamat</th><th class="n hp-sembunyi">Nota periode</th><th class="n">Belanja periode</th><th class="hp-sembunyi">Terakhir belanja</th><th class="n">Sisa hutang</th></tr></thead><tbody>${list.map(p=>{const h=sisaHutang(p.id);const x=B.m[p.id];return `<tr class="click" data-act="openpel" data-id="${p.id}"><td><b>${esc(p.nama)}</b>${p.contoh?'<span class="tag-c">contoh</span>':""}${(p.diskon||[]).length?' <span class="chip good">diskon</span>':""}${p.telp?`<div class="hp-saja sku">${esc(p.telp)}</div>`:""}</td><td class="hp-sembunyi">${esc(p.telp||"–")}</td><td class="hp-sembunyi">${esc(p.alamat||"–")}</td><td class="n hp-sembunyi">${x?x.n+"×":"–"}</td><td class="n">${x?rp(x.o):"–"}</td><td class="hp-sembunyi">${x?tgl(x.last):"–"}</td><td class="n">${h?`<b style="color:var(--warn)">${rp(h)}</b>`:"–"}</td></tr>`;}).join("")}</tbody>
   <tfoot><tr><td colspan="3" class="n">Total</td><td class="n">${list.reduce((a,p)=>a+(B.m[p.id]?.n||0),0)}×</td><td class="n">${rp(list.reduce((a,p)=>a+(B.m[p.id]?.o||0),0))}</td><td></td><td class="n">${rp(list.reduce((a,p)=>a+sisaHutang(p.id),0))}</td></tr></tfoot></table></div>`:`<div class="empty"><b>${S.pelanggan.length?"Tidak ada yang cocok":"Belum ada pelanggan"}</b><span>${S.pelanggan.length?"Coba ubah pencarian atau periode.":"Pelanggan juga bisa didaftarkan langsung dari Penjualan."}</span></div>`}</section>`;
 }
 function vPelDetail(){
@@ -2058,42 +2150,56 @@ function scanKe(target,kode){
   if(target==="pos"){if(!scanMasuk(kode))bcBelumAda(kode);return;}
   if(target==="prod"){scanProduk(kode);return;}
   if(target==="isi"){if(KAM.isi){S.modal=KAM.isi;KAM.isi=null;bcIsiSimpan(kode);}return;}
+  if(target==="form"){pfTambahBc(kode);return;}
   if(target&&target.startsWith("form:")){const i=+target.slice(5);if(!S.edit)return;const k=cariBarcode(kode);if(k&&k.p.id!==S.edit.id){toast("Barcode "+kode+" sudah dipakai "+k.p.nama+" ("+k.p.satuan[k.si].nama+").");return;}S.edit.satuan[i].barcode=kode;render();toast("Barcode "+S.edit.satuan[i].nama.toLowerCase()+": "+kode);return;}}
 /* Back Office → Produk: scan barang. Sudah ada → buka. Belum ada → form produk baru dengan barcode terisi. */
-function scanProduk(kode){const f=cariBarcode(kode);if(f){S.view="produk";S.prodQ="";ACT.editprod({dataset:{id:f.p.id}});toast("Ditemukan: "+f.p.nama+" ("+f.p.satuan[f.si].nama+")");return;}S.modal={t:"bcbaru",kode,q:"",dari:"prod"};renderModal();setTimeout(()=>$("#bc-q")?.focus(),0);}
+function scanProduk(kode){const f=cariBarcode(kode);if(f){S.view="produk";S.prodQ="";ACT.editprod({dataset:{id:f.p.id}});toast("Ditemukan: "+f.p.nama);return;}S.modal={t:"bcbaru",kode,q:"",dari:"prod"};renderModal();$("#bc-q")?.focus();}
 function produkBaru(kode){const st=setting();const kat=S.prodK&&st.kategori.some(k=>k.nama===S.prodK)?S.prodK:st.kategori[0].nama;
-  S.view="produk";S.edit={id:null,sku:"",nama:"",kategori:kat,kode:"",satuan:[{nama:st.satuan.includes("Pcs")?"Pcs":st.satuan[0],rel:1,beli:"",jual:"",barcode:kode||""}],tingkat:[],aktif:true,baruScan:!!kode};render();window.scrollTo(0,0);setTimeout(()=>$("#pf-nama")?.focus(),0);
+  S.view="produk";S.edit={id:null,sku:"",nama:"",kategori:kat,kode:"",satuan:[{nama:st.satuan.includes("Pcs")?"Pcs":st.satuan[0],rel:1,beli:"",jual:"",}],barcodes:kode?[kode]:[],tingkat:[],aktif:true,baruScan:!!kode};render();window.scrollTo(0,0);setTimeout(()=>$("#pf-nama")?.focus(),0);
   if(kode)toast("Barcode "+kode+" belum terdaftar. Isi nama barangnya.");}
-function bcBelumAda(kode){if(owner()){S.modal={t:"bcbaru",kode,q:"",dari:"pos"};renderModal();setTimeout(()=>$("#bc-q")?.focus(),0);}else toast("Barcode "+kode+" belum terdaftar. Minta pemilik menambahkannya.");}
-function mBcIsi(m){const p=S.produk.find(x=>x.id===m.id);if(!p)return "";const s=p.satuan[m.si];
+function bcBelumAda(kode){if(owner()){S.modal={t:"bcbaru",kode,q:"",dari:"pos"};renderModal();$("#bc-q")?.focus();}else toast("Barcode "+kode+" belum terdaftar. Minta pemilik menambahkannya.");}
+function pfBarcodeHTML(e){if(!e.barcodes)e.barcodes=bcList(e);return `<div class="field"><label for="pf-bc">Barcode</label>
+  <div class="bc-isian">${e.barcodes.map((b,i)=>`<span class="bc-chip">${esc(b)}<button data-act="pfbcdel" data-i="${i}" aria-label="Hapus barcode ${esc(b)}">×</button></span>`).join("")}
+  <input id="pf-bc" data-pfbc="1" placeholder="${e.barcodes.length?"Tambah barcode lain (opsional)":"Scan atau ketik barcode, lalu Enter"}" autocomplete="off" inputmode="numeric"><button class="btn" data-act="kambuka" data-target="form" title="Scan pakai kamera">${IKON_SCAN} Kamera</button></div>
+  <span class="hint">Barcode untuk mencari barang saat scan. Satuannya dipilih di kasir. Boleh lebih dari satu, mis. kemasan lama dan baru.</span></div>`;}
+function pfTambahBc(kode){const e=S.edit;if(!e)return;kode=String(kode||"").replace(/\s+/g,"");if(!kode)return;if(!e.barcodes)e.barcodes=bcList(e);if(e.barcodes.includes(kode)){toast("Barcode itu sudah ada.");return;}
+  const k=cariBarcode(kode);if(k&&k.p.id!==e.id){toast("Barcode "+kode+" sudah dipakai "+k.p.nama+".");return;}e.barcodes.push(kode);render();setTimeout(()=>$("#pf-bc")?.focus(),0);}
+function mTambahProd(){return `<div class="dialog__kepala"><h2>Tambah produk</h2><button class="btn sm ghost" data-act="closemodal" aria-label="Tutup">✕</button></div>
+  <div class="dialog__isi"><p style="margin:0">Scan barcode kemasan dulu supaya tidak ada produk dobel. Kalau barcode-nya sudah terdaftar, produknya langsung terbuka.</p>
+  <div class="tp-scan"><input id="tp-bc" data-tpbc="1" placeholder="Scan pakai alat, atau ketik barcode lalu Enter" autocomplete="off" inputmode="numeric"><button class="btn primary" data-act="kambuka" data-target="prod">${IKON_SCAN} Kamera</button></div>
+  <div class="tp-atau"><span>atau</span></div>
+  <div class="tp-pilih"><button class="tp-opsi" data-act="tambahmanual"><b>Isi manual</b><span>Untuk barang tanpa barcode, mis. curah atau timbangan</span></button><button class="tp-opsi" data-act="tambahimpor"><b>Impor dari Excel</b><span>Tambah atau perbarui banyak produk sekaligus</span></button></div></div>`;}
+function mBcIsi(m){const p=S.produk.find(x=>x.id===m.id);if(!p)return "";const L=bcList(p);
   return `<div class="dialog__kepala"><h2>Barcode · ${esc(p.nama)}</h2><button class="btn sm ghost" data-act="closemodal" aria-label="Tutup">✕</button></div>
-  <div class="dialog__isi">${p.satuan.length>1?`<div class="seg" role="tablist">${p.satuan.map((x,i)=>`<button class="btn sm ${i===m.si?"primary":""}" data-act="bcisisat" data-si="${i}">${esc(x.nama)}${x.barcode?" ✓":""}</button>`).join(" ")}</div>`:""}
-  <p style="margin:0">Scan kemasan <b>${esc(s.nama.toLowerCase())}</b> sekarang${p.satuan.length>1?" (pastikan satuannya benar)":""}.</p>
-  <div style="display:flex;gap:8px"><input id="bc-isi" data-bcisi="1" value="${esc(s.barcode||"")}" placeholder="Scan atau ketik barcode, lalu Enter" autocomplete="off" inputmode="numeric" style="flex:1">
-  <button class="btn" data-act="kambuka" data-target="isi" title="Scan pakai kamera">${IKON_SCAN} Kamera</button></div>
+  <div class="dialog__isi">${L.length?`<div class="bc-isian">${L.map(b=>`<span class="bc-chip">${esc(b)}<button data-act="bcisihapus" data-bc="${esc(b)}" aria-label="Hapus barcode ${esc(b)}">×</button></span>`).join("")}</div>`:""}
+  <p style="margin:0">${L.length?"Tambah barcode lain kalau ada kemasan berbeda.":"Scan barcode di kemasan sekarang."} Satuan dipilih saat jual.</p>
+  <div class="tp-scan"><input id="bc-isi" data-bcisi="1" placeholder="Scan atau ketik barcode, lalu Enter" autocomplete="off" inputmode="numeric"><button class="btn primary" data-act="kambuka" data-target="isi">${IKON_SCAN} Kamera</button></div>
   ${m.err?`<p class="catatan catatan--bahaya" style="margin:0">${esc(m.err)}</p>`:""}
-  <div class="row" style="justify-content:space-between">${s.barcode?`<button class="btn" data-act="bcisihapus">Hapus barcode ${esc(s.nama.toLowerCase())}</button>`:"<span></span>"}<div class="row" style="gap:8px"><button class="btn" data-act="closemodal">Selesai</button><button class="btn primary" data-act="bcisisimpan">Simpan</button></div></div></div>`;}
-function bcIsiBuka(id,si){S.modal={t:"bcisi",id,si:si||0,err:""};renderModal();setTimeout(()=>{const x=$("#bc-isi");if(x){x.focus();x.select();}},0);}
-async function bcIsiSimpan(kode){const m=S.modal;if(!m||m.t!=="bcisi")return;const p=S.produk.find(x=>x.id===m.id);if(!p)return;kode=String(kode||"").replace(/\s+/g,"");
-  const lain=kode&&cariBarcode(kode);if(lain&&!(lain.p.id===p.id&&lain.si===m.si)){m.err="Barcode "+kode+" sudah dipakai "+lain.p.nama+" ("+lain.p.satuan[lain.si].nama+").";renderModal();setTimeout(()=>$("#bc-isi")?.select(),0);return;}
-  const satuan=p.satuan.map((s,i)=>{const o={...s};if(i===m.si){if(kode)o.barcode=kode;else delete o.barcode;}return o;});
-  try{await patch("produk",p.id,{satuan,diubah:now()});}catch(err){fail(err);return;}
-  const nm=p.satuan[m.si].nama;const next=satuan.findIndex(s=>!s.barcode);
-  if(kode&&next>=0){toast("Barcode "+nm.toLowerCase()+" disimpan. Lanjut "+satuan[next].nama.toLowerCase()+".");bcIsiBuka(p.id,next);}
-  else{S.modal=null;renderModal();render();toast(kode?"Barcode "+nm.toLowerCase()+" "+p.nama+" disimpan.":"Barcode "+nm.toLowerCase()+" dihapus.");}}
+  <div class="row" style="justify-content:flex-end"><button class="btn" data-act="closemodal">Selesai</button></div></div>`;}
+function bcIsiBuka(id){S.modal={t:"bcisi",id,err:""};renderModal();$("#bc-isi")?.focus();}
+async function bcIsiSimpan(kode,hapus){const m=S.modal;if(!m||m.t!=="bcisi")return;const p=S.produk.find(x=>x.id===m.id);if(!p)return;kode=String(kode||"").replace(/\s+/g,"");if(!kode)return;
+  let L=bcList(p);if(hapus)L=L.filter(b=>b!==kode);else{if(L.includes(kode)){m.err="Barcode itu sudah terpasang di produk ini.";renderModal();return;}const lain=cariBarcode(kode);if(lain){m.err="Barcode "+kode+" sudah dipakai "+lain.p.nama+".";renderModal();setTimeout(()=>$("#bc-isi")?.select(),0);return;}L=[...L,kode];}
+  const satuan=p.satuan.map(s=>{const o={...s};delete o.barcode;return o;});
+  try{await patch("produk",p.id,{barcodes:L,satuan,diubah:now()});}catch(err){fail(err);return;}
+  if(hapus){toast("Barcode "+kode+" dihapus.");bcIsiBuka(p.id);}else{S.modal=null;renderModal();render();toast("Barcode "+p.nama+" disimpan.");}}
 function bcDaftar(m){const q=(m.q||"").trim();let L=S.produk.filter(p=>!q||cocok(p.nama+" "+p.sku+" "+(p.kode||"")+" "+(p.pabrikan||""),q));
-  if(!q)L=L.filter(p=>p.satuan.some(s=>!s.barcode));L=L.sort((a,b)=>(a.satuan.every(s=>s.barcode)-b.satuan.every(s=>s.barcode))||byNama(a,b)).slice(0,40);
+  if(!q)L=L.filter(p=>!bcList(p).length);L=L.sort((a,b)=>((bcList(a).length>0)-(bcList(b).length>0))||byNama(a,b)).slice(0,40);
   if(!L.length)return `<p class="hint" style="margin:8px 0">${q?"Tidak ada produk yang cocok. Kalau memang barang baru, pilih “+ Produk baru”.":"Semua produk sudah punya barcode."}</p>`;
-  return L.map(p=>`<div class="bc-item"><div class="bc-item__nama"><b>${esc(p.nama)}</b><span class="hint">${esc(p.sku)} · ${esc(p.kategori)}${p.aktif===false?" · OFF":""}</span></div><div class="bc-item__sat">${p.satuan.map((s,si)=>s.barcode?`<span class="chip" title="Barcode ${esc(s.barcode)}">${esc(s.nama)} ✓</span>`:`<button class="btn sm" data-act="bcpasang" data-id="${p.id}" data-si="${si}">Pasang ke ${esc(s.nama)}</button>`).join("")}</div></div>`).join("");}
+  return L.map(p=>`<div class="bc-item"><div class="bc-item__nama"><b>${esc(p.nama)}</b><span class="hint">${esc(p.sku)} · ${esc(p.kategori)}${p.aktif===false?" · OFF":""}</span></div><div class="bc-item__sat">${bcList(p).length?`<span class="chip" title="${esc(bcList(p).join(", "))}">sudah ada barcode</span>`:""}<button class="btn sm ${bcList(p).length?"":"primary"}" data-act="bcpasang" data-id="${p.id}">Pasang di sini</button></div></div>`).join("");}
 function mBcBaru(m){return `<div class="dialog__kepala"><h2>Barcode belum terdaftar</h2><button class="btn sm ghost" data-act="closemodal" aria-label="Tutup">✕</button></div>
   <div class="dialog__isi"><p style="margin:0">Barcode <b>${esc(m.kode)}</b> belum dipakai produk mana pun.</p>
-  <p class="hint" style="margin:0">Kalau barangnya <b>sudah ada</b> di daftar, cari lalu pilih satuannya. Kalau barang <b>baru</b>, tekan “+ Produk baru”.</p>
+  <p class="hint" style="margin:0">Kalau barangnya <b>sudah ada</b> di daftar, cari lalu tekan “Pasang di sini”. Kalau barang <b>baru</b>, tekan “+ Produk baru”.</p>
   <input type="search" id="bc-q" data-bcq="1" placeholder="Cari produk yang sudah ada…" value="${esc(m.q||"")}" autocomplete="off">
   <div id="bc-list" class="bc-list">${bcDaftar(m)}</div>
   <div class="row" style="justify-content:space-between"><button class="btn" data-act="closemodal">Batal</button><button class="btn primary" data-act="bcbarutambah">+ Produk baru</button></div></div>`;}
-function bcStr(p){return p.satuan.map(s=>s.barcode||"").join(" ");}
-function cariBarcode(kode){const k=String(kode||"").replace(/\s+/g,"");if(!k)return null;for(const p of S.produk){const si=p.satuan.findIndex(s=>s.barcode===k);if(si>=0)return{p,si};}return null;}
-function scanMasuk(kode){const f=cariBarcode(kode);if(!f)return false;const{p,si}=f;if(p.aktif===false){toast(p.nama+" nonaktif, belum bisa dijual.");return true;}if(!(p.satuan[si].jual>0)){toast("Harga "+p.nama+" ("+p.satuan[si].nama+") belum diisi.");return true;}addItem(p,si);S.q="";const q=$("#posq");if(q)q.value="";const g=$("#grid");if(g)g.innerHTML=gridHTML();refreshCart();toast("+1 "+p.satuan[si].nama.toLowerCase()+" "+p.nama);setTimeout(()=>$("#posq")?.focus(),0);return true;}
+function bcList(p){return [...new Set([...(p.barcodes||[]),...(p.satuan||[]).map(s=>s.barcode)].filter(Boolean))];}
+function bcStr(p){return bcList(p).join(" ");}
+function cariBarcode(kode){const k=String(kode||"").replace(/\s+/g,"");if(!k)return null;for(const p of S.produk){if(bcList(p).includes(k))return{p,si:0};}return null;}
+function scanMasuk(kode){const f=cariBarcode(kode);if(!f)return false;const p=f.p;S.q="";const q=$("#posq");if(q)q.value="";const g=$("#grid");if(g)g.innerHTML=gridHTML();
+  if(p.aktif===false){toast(p.nama+" nonaktif, belum bisa dijual.");return true;}
+  const ada=p.satuan.map((s,i)=>({s,i})).filter(x=>x.s.jual>0);if(!ada.length){toast("Harga "+p.nama+" belum diisi.");return true;}
+  if(ada.length===1){addItem(p,ada[0].i);refreshCart();toast("+1 "+ada[0].s.nama.toLowerCase()+" "+p.nama);setTimeout(()=>$("#posq")?.focus(),0);return true;}
+  ACT.tile({dataset:{p:p.id}});return true;}
 function addItem(p,si){const c=cart();const s=p.satuan[si];const ex=c.items.find(i=>i.pid===p.id&&i.sat===s.nama&&i.isi===s.isi);
   if(ex)ex.qty+=1;else c.items.push({pid:p.id,nama:p.nama,kategori:p.kategori,sat:s.nama,isi:s.isi,qty:1,normal:s.jual,disk:0,diskSaran:0,diskManual:false,beli:s.beli||0,pesan:c.fromAntrian?null:undefined});
   reprice(c);}
@@ -2173,14 +2279,14 @@ const fotoImg=(p,cls)=>p&&p.foto?`<img class="${cls}" src="${esc(p.foto)}" alt="
 async function saveProd(){
   const e=S.edit;const nama=e.nama.trim();if(!nama){toast("Isi nama barang.");return;}
   const dup=S.produk.find(p=>p.id!==e.id&&norm(p.nama)===norm(nama));if(dup){toast("Nama sudah dipakai: "+dup.nama+" ("+dup.sku+").");return;}
-  const sat=e.satuan.map((s,i)=>{const o={nama:s.nama,isi:isiOf(e,i),rel:i?money(s.rel):1,beli:money(s.beli),jual:money(s.jual)};const bc=String(s.barcode||"").replace(/\s+/g,"");if(bc)o.barcode=bc;return o;});
-  {const bcs=sat.map(s=>s.barcode).filter(Boolean);if(new Set(bcs).size!==bcs.length){toast("Ada barcode yang sama dua kali.");return;}for(const bc of bcs){const k=cariBarcode(bc);if(k&&k.p.id!==e.id){toast("Barcode "+bc+" sudah dipakai "+k.p.nama+" ("+k.p.satuan[k.si].nama+").");return;}}}
+  const sat=e.satuan.map((s,i)=>({nama:s.nama,isi:isiOf(e,i),rel:i?money(s.rel):1,beli:money(s.beli),jual:money(s.jual)}));
+  {const ketik=$("#pf-bc")?.value.trim();if(ketik)pfTambahBc(ketik);}const barcodes=[...new Set((e.barcodes||bcList(e)).map(b=>String(b).replace(/\s+/g,"")).filter(Boolean))];for(const bc of barcodes){const k=cariBarcode(bc);if(k&&k.p.id!==e.id){toast("Barcode "+bc+" sudah dipakai "+k.p.nama+".");return;}}
   if(sat.some((s,i)=>i>0&&s.rel<2)){toast("Isi satuan besar harus lebih dari 1.");return;}
   let jadiOff=false;if(e.aktif!==false&&sat.some(s=>!s.jual)){e.aktif=false;jadiOff=true;}
   if(new Set(sat.map(s=>s.nama+"|"+s.isi)).size!==sat.length){toast("Ada satuan yang sama dua kali.");return;}
   const tingkat=e.tingkat.map(t=>({min:qn(t.min),harga:money(t.harga)})).filter(t=>t.min>0&&t.harga>0).sort((a,b)=>a.min-b.min);
   if(e.kode){const k=S.produk.find(p=>p.id!==e.id&&p.kode&&norm(p.kode)===norm(e.kode));if(k){toast("Kode cepat sudah dipakai "+k.nama+".");return;}}
-  const id=e.id||uid();const data={sku:e.sku||newSku(e.kategori),nama,kategori:e.kategori,kode:(e.kode||"").trim(),satuan:sat,tingkat,aktif:e.aktif!==false,diubah:now()};if(e.contoh)data.contoh=true;if(e.foto){data.foto=e.foto;data.fotoPath=e.fotoPath||"";}if(jenisOf(e.kategori).includes(e.jenis))data.jenis=e.jenis;if((e.pabrikan||"").trim())data.pabrikan=e.pabrikan.trim();const lamaFoto=e.id&&prod(e.id)?.fotoPath;
+  const id=e.id||uid();const data={sku:e.sku||newSku(e.kategori),nama,kategori:e.kategori,kode:(e.kode||"").trim(),satuan:sat,tingkat,aktif:e.aktif!==false,diubah:now()};if(barcodes.length)data.barcodes=barcodes;if(e.contoh)data.contoh=true;if(e.foto){data.foto=e.foto;data.fotoPath=e.fotoPath||"";}if(jenisOf(e.kategori).includes(e.jenis))data.jenis=e.jenis;if((e.pabrikan||"").trim())data.pabrikan=e.pabrikan.trim();const lamaFoto=e.id&&prod(e.id)?.fotoPath;
   try{await put("produk",id,data);}catch(err){fail(err);return;}if(lamaFoto&&lamaFoto!==data.fotoPath)buangFotoLama(lamaFoto);const dariScan=e.baruScan&&!e.id;S.edit=null;toast("Produk "+data.sku+" disimpan."+(jadiOff?" Harga belum lengkap, jadi disimpan nonaktif (OFF).":"")+(dariScan?" Scan barang berikutnya.":""));render();
 }
 async function loadContoh(){
@@ -2364,6 +2470,11 @@ const ACT={
   printharian(b){const o=b.dataset.k==="riwp"?S.riw:S.lap;const [s,e]=rangeOf(o);const end=new Date(Math.min(+e,+new Date(new Date().setHours(24,0,0,0)))-1);const dk=dkey(end);printDoc("Laporan harian "+tgl(dk+"T00:00"),harianText(dk));},
   pdfinfo(){toast("Unduh PDF tersedia di aplikasi asli. Di prototipe, pakai Cetak laporan harian untuk melihat bentuknya.");},
   /* produk */
+  alat(b){const k=b.dataset.k;ALAT[k]=!ALAT[k];try{localStorage.setItem("tkl-alat",JSON.stringify(ALAT));}catch(e){}S.ppOpen=null;render();},
+  alatreset(b){const k=b.dataset.k;if(k==="produk"){S.prodK="";S.prodTanpaFoto=false;S.prodTanpaBc=false;S.lap.prodF="semua";}else if(k==="pelanggan")S.lap.pelF="semua";else if(k==="riwayat")S.riw.f="semua";render();},
+  tambahbuka(){S.modal={t:"tambahprod"};renderModal();$("#tp-bc")?.focus();},
+  tambahmanual(){S.modal=null;renderModal();ACT.newprod();},
+  tambahimpor(){S.modal=null;ACT.imporbuka();},
   newprod(){S.view="produk";S.edit={id:null,sku:"",nama:"",kategori:setting().kategori[0].nama,kode:"",satuan:[{nama:"Pcs",rel:1,beli:"",jual:""}],tingkat:[],aktif:true};render();setTimeout(()=>$("#pf-nama")?.focus(),0);},
   editprod(b){const p=prod(b.dataset.id);S.edit=JSON.parse(JSON.stringify({...p,satuan:p.satuan.map((s,i)=>({...s,rel:i?(s.rel||s.isi/p.satuan[i-1].isi):1})),tingkat:p.tingkat||[]}));render();window.scrollTo(0,0);},
   cancelprod(){S.edit=null;S.fotoLink=false;render();},
@@ -2379,14 +2490,13 @@ const ACT={
   saveprod(){saveProd();},
   kambuka(b){kameraBuka(b.dataset.target);},
   kamtutup(){kameraStop();if(S.modal?.target==="isi"&&KAM.isi){S.modal=KAM.isi;KAM.isi=null;}else S.modal=null;renderModal();},
-  async bcpasang(b){const m=S.modal;const p=S.produk.find(x=>x.id===b.dataset.id);if(!p||!m)return;const si=+b.dataset.si;const lain=cariBarcode(m.kode);if(lain){toast("Barcode sudah dipakai "+lain.p.nama+".");return;}
-    const satuan=p.satuan.map((s,i)=>i===si?{...s,barcode:m.kode}:{...s});try{await patch("produk",p.id,{satuan,diubah:now()});}catch(err){fail(err);return;}
-    const dari=m.dari,kode=m.kode;S.modal=null;renderModal();toast("Barcode dipasang ke "+p.nama+" ("+p.satuan[si].nama+")."+(dari==="prod"?" Scan barang berikutnya.":""));
+  async bcpasang(b){const m=S.modal;const p=S.produk.find(x=>x.id===b.dataset.id);if(!p||!m)return;const lain=cariBarcode(m.kode);if(lain){toast("Barcode sudah dipakai "+lain.p.nama+".");return;}
+    const satuan=p.satuan.map(s=>{const o={...s};delete o.barcode;return o;});try{await patch("produk",p.id,{barcodes:[...bcList(p),m.kode],satuan,diubah:now()});}catch(err){fail(err);return;}
+    const dari=m.dari,kode=m.kode;S.modal=null;renderModal();toast("Barcode dipasang ke "+p.nama+"."+(dari==="prod"?" Scan barang berikutnya.":""));
     if(dari==="pos")scanMasuk(kode);else render();},
-  bcisibuka(b){bcIsiBuka(b.dataset.id,(()=>{const p=S.produk.find(x=>x.id===b.dataset.id);const i=p?p.satuan.findIndex(s=>!s.barcode):0;return i<0?0:i;})());},
-  bcisisat(b){bcIsiBuka(S.modal.id,+b.dataset.si);},
-  bcisisimpan(){bcIsiSimpan($("#bc-isi")?.value);},
-  bcisihapus(){bcIsiSimpan("");},
+  bcisibuka(b){bcIsiBuka(b.dataset.id);},
+  bcisihapus(b){bcIsiSimpan(b.dataset.bc,true);},
+  pfbcdel(b){S.edit.barcodes.splice(+b.dataset.i,1);render();},
   bcbarutambah(){const k=S.modal.kode;S.modal=null;renderModal();produkBaru(k);},
   contoh(){loadContoh();},
   /* pelanggan */
@@ -2470,7 +2580,7 @@ const SCAN={buf:"",t:0};
 document.addEventListener("keydown",e=>{const diProduk=S.view==="produk"&&!S.edit;if(!(S.view==="pos"||diProduk)||S.modal)return;const el=document.activeElement;if(el&&/^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName))return;const n=Date.now();if(n-SCAN.t>80)SCAN.buf="";SCAN.t=n;
   if(e.key==="Enter"){if(SCAN.buf.length>=4){e.preventDefault();const k=SCAN.buf;SCAN.buf="";if(diProduk)scanProduk(k);else if(!scanMasuk(k))bcBelumAda(k);}return;}
   if(e.key.length===1&&!e.ctrlKey&&!e.metaKey&&!e.altKey)SCAN.buf+=e.key;},true);
-document.addEventListener("keydown",e=>{if(e.key==="Escape"&&S.modal&&!S.printing){if(S.modal.t==="kamera")kameraStop();S.modal=null;renderModal();}if(e.key==="Enter"&&e.target.dataset.posq){if(scanMasuk(e.target.value)){e.preventDefault();return;}if(/^\d{6,}$/.test(e.target.value.trim())&&!document.querySelector("#grid .kartu-barang")){e.preventDefault();const k=e.target.value.trim();e.target.value="";S.q="";bcBelumAda(k);return;}const t=document.querySelector("#grid .kartu-barang");if(t){e.preventDefault();t.click();}}if(e.key==="Enter"&&e.target.dataset.bcisi){e.preventDefault();bcIsiSimpan(e.target.value);return;}if(e.key==="Enter"&&e.target.dataset.prodq){const v=e.target.value.trim();if(cariBarcode(v)||/^\d{6,}$/.test(v)){e.preventDefault();S.prodQ="";scanProduk(v);return;}}if(e.key==="Enter"&&e.target.dataset.sf==="barcode"){e.preventDefault();e.target.blur();}if(e.key==="Enter"&&e.target.dataset.atur){e.preventDefault();aturSimpan();}});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&S.modal&&!S.printing){if(S.modal.t==="kamera")kameraStop();S.modal=null;renderModal();}if(e.key==="Enter"&&e.target.dataset.posq){if(scanMasuk(e.target.value)){e.preventDefault();return;}if(/^\d{6,}$/.test(e.target.value.trim())&&!document.querySelector("#grid .kartu-barang")){e.preventDefault();const k=e.target.value.trim();e.target.value="";S.q="";bcBelumAda(k);return;}const t=document.querySelector("#grid .kartu-barang");if(t){e.preventDefault();t.click();}}if(e.key==="Enter"&&e.target.dataset.pfbc){e.preventDefault();pfTambahBc(e.target.value);return;}if(e.key==="Enter"&&e.target.dataset.tpbc){e.preventDefault();const v=e.target.value.trim();if(!v)return;S.modal=null;renderModal();scanProduk(v);return;}if(e.key==="Enter"&&e.target.dataset.bcisi){e.preventDefault();bcIsiSimpan(e.target.value);return;}if(e.key==="Enter"&&e.target.dataset.prodq){const v=e.target.value.trim();if(cariBarcode(v)||/^\d{6,}$/.test(v)){e.preventDefault();S.prodQ="";scanProduk(v);return;}}if(e.key==="Enter"&&e.target.dataset.sf==="barcode"){e.preventDefault();e.target.blur();}if(e.key==="Enter"&&e.target.dataset.atur){e.preventDefault();aturSimpan();}});
 
 /* ================= mulai ================= */
 let SB=null;
