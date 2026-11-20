@@ -1323,7 +1323,7 @@ function vPOS(banner){
 function posJual(){
   const kats=setting().kategori.filter(k=>S.produk.some(p=>p.aktif!==false&&p.kategori===k.nama));const c=cart();
   return `<div class="pj ${S.cartOpen?"pj--keranjang-buka":""}"><section class="pj__barang" aria-label="Daftar barang">
-   <label class="pj__cari-kotak"><span class="sr">Cari barang</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="posq" data-posq="1" value="${esc(S.q)}" placeholder="Cari nama, pabrikan, SKU, kode" autocomplete="off"></label>
+   <label class="pj__cari-kotak"><span class="sr">Cari barang</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="posq" data-posq="1" value="${esc(S.q)}" placeholder="Cari nama, pabrikan, SKU, kode, atau scan barcode" autocomplete="off"></label>
    <div class="pj__kategori" role="group" aria-label="Kategori"><button data-act="cat" data-c="" aria-pressed="${!S.cat}">Semua</button>${kats.map(k=>`<button data-act="cat" data-c="${esc(k.nama)}" aria-pressed="${S.cat===k.nama}">${esc(k.nama)}</button>`).join("")}</div>
    ${(()=>{const ck=S.cat;if(!ck)return "";const ps=S.produk.filter(p=>p.aktif!==false&&p.kategori===ck);
      const pbs=[...new Set(ps.map(p=>p.pabrikan).filter(Boolean))].sort();const js=jenisOf(ck).filter(j=>ps.some(p=>p.jenis===j));
@@ -1338,7 +1338,7 @@ function posJual(){
 function gridHTML(){
   if(!S.produk.length)return `<p class="pj__kosong">Belum ada produk. ${owner()?`<button class="btn sm primary" data-act="contoh">Muat contoh data</button>`:"Minta pemilik mengisi data produk."}</p>`;
   const q=S.q.trim().toLowerCase();const w=q.split(/\s+/).filter(Boolean);
-  const ck=S.cat,cj=ck&&S.subJn,cp=ck&&S.subPb;const list=S.produk.filter(p=>p.aktif!==false&&(!ck||p.kategori===ck)&&(!cj||p.jenis===cj)&&(!cp||p.pabrikan===cp)&&cocok(p.nama+" "+p.sku+" "+(p.kode||"")+" "+(p.pabrikan||""),q)).sort(byNama);
+  const ck=S.cat,cj=ck&&S.subJn,cp=ck&&S.subPb;const list=S.produk.filter(p=>p.aktif!==false&&(!ck||p.kategori===ck)&&(!cj||p.jenis===cj)&&(!cp||p.pabrikan===cp)&&cocok(p.nama+" "+p.sku+" "+(p.kode||"")+" "+(p.pabrikan||"")+" "+bcStr(p),q)).sort(byNama);
   if(!list.length)return `<p class="pj__kosong">Barang tidak ditemukan. Barang yang belum terdaftar tidak bisa dijual; pemilik bisa menambahkannya di Produk.</p>`;
   const jml={};cart().items.forEach(i=>{jml[i.pid]=(jml[i.pid]||0)+i.qty*i.isi;});
   return list.map(p=>{const s=p.satuan[0];const t=(p.tingkat||[]).length;
@@ -1898,7 +1898,7 @@ function vProduk(){
   <div class="list" id="plist">${prodList()}</div></section>`;
 }
 function prodList(){const J=S._J||{};const q=S.prodQ;const F=S.lap.prodF;
-  let list=S.produk.filter(p=>cocok(p.nama+" "+p.sku+" "+(p.kode||"")+" "+(p.pabrikan||""),q)&&(!S.prodK||p.kategori===S.prodK)&&(!S.prodTanpaFoto||!p.foto));
+  let list=S.produk.filter(p=>cocok(p.nama+" "+p.sku+" "+(p.kode||"")+" "+(p.pabrikan||"")+" "+bcStr(p),q)&&(!S.prodK||p.kategori===S.prodK)&&(!S.prodTanpaFoto||!p.foto));
   if(F==="laku")list=list.filter(p=>J[p.id]).sort((a,b)=>J[b.id].o-J[a.id].o);
   else if(F==="tidak")list=list.filter(p=>p.aktif!==false&&!J[p.id]).sort(byNama);
   else if(F==="tipis")list=list.filter(p=>p.aktif!==false&&untungMin(p)!=null&&untungMin(p)<5).sort((a,b)=>untungMin(a)-untungMin(b));
@@ -1918,14 +1918,14 @@ function vProdForm(){
    <div class="foto-form__aksi"><b>Foto barang</b><span class="hint">Foto kemasan dari depan supaya kasir tidak salah ambil.</span>
    <div class="row">${S.fotoSibuk==="form"?`<span class="teks-pudar">Menyimpan foto…</span>`:`<label class="btn sm">📷 Ambil foto<input type="file" accept="image/*" capture="environment" data-fotoform="1" hidden></label><label class="btn sm">Pilih dari galeri<input type="file" accept="image/*" data-fotoform="1" hidden></label><button class="btn sm" data-act="fotolinkbuka">🔗 Tempel link gambar</button>${e.foto?`<button class="btn sm" data-act="fotohapus">Hapus foto</button>`:""}`}</div>
    ${S.fotoLink?`<div class="row" style="align-items:center"><input id="pf-fotolink" type="url" placeholder="https://… (salin alamat gambar dari situs resmi)" style="flex:1 1 240px"><button class="btn sm primary" data-act="fotolinkpakai">Pakai</button><button class="btn sm" data-act="fotolinkbuka">Batal</button></div><span class="hint">Di HP: buka gambar di situs, tekan lama → "Salin alamat gambar", lalu tempel di sini.</span>`:""}</div></div>
-  <div><h2>Satuan & harga</h2><p class="hint">Baris pertama = satuan terkecil yang dijual. Satuan besar ditulis isinya dalam satuan di atasnya.</p></div>
-  <div class="tw" style="border:0"><table class="ftable"><thead><tr><th>Satuan</th><th>Isi</th><th class="n">Harga beli</th><th class="n">Harga jual</th><th class="n">Untung %</th><th>Per ${esc(d)}</th><th></th></tr></thead><tbody>
+  <div><h2>Satuan & harga</h2><p class="hint">Baris pertama = satuan terkecil yang dijual. Satuan besar ditulis isinya dalam satuan di atasnya. Barcode: klik kolomnya lalu scan kemasan; tiap satuan (mis. bungkus dan karton) punya barcode sendiri.</p></div>
+  <div class="tw" style="border:0"><table class="ftable"><thead><tr><th>Satuan</th><th>Isi</th><th class="n">Harga beli</th><th class="n">Harga jual</th><th class="n">Untung %</th><th>Per ${esc(d)}</th><th>Barcode</th><th></th></tr></thead><tbody>
   ${e.satuan.map((s,i)=>`<tr><td><select data-sf="nama" data-i="${i}" aria-label="Satuan" style="min-width:110px">${st.satuan.map(x=>`<option ${x===s.nama?"selected":""}>${esc(x)}</option>`).join("")}</select></td>
   <td>${i===0?'<span class="chip blue">dasar</span>':`<div style="display:flex;gap:6px;align-items:center;white-space:nowrap"><input inputmode="numeric" data-sf="rel" data-i="${i}" value="${esc(s.rel)}" style="width:64px" aria-label="Isi"> <span class="muted">${esc(e.satuan[i-1].nama)}</span></div>`}</td>
   <td><input inputmode="numeric" data-sf="beli" data-i="${i}" value="${esc(s.beli)}" placeholder="0" style="width:110px;text-align:right" aria-label="Harga beli"></td>
   <td><input inputmode="numeric" data-sf="jual" data-i="${i}" value="${esc(s.jual)}" placeholder="0" style="width:110px;text-align:right" aria-label="Harga jual"></td>
   <td><input inputmode="decimal" data-sf="pct" data-i="${i}" value="${esc(s.pct??pctVal(s))}" placeholder="%" style="width:72px;text-align:right" aria-label="Untung persen"></td>
-  <td id="per-${i}" style="white-space:nowrap;font-size:12.5px">${perHTML(i)}</td><td>${i>0?`<button class="x" data-act="rmsat" data-i="${i}" aria-label="Hapus satuan">×</button>`:""}</td></tr>`).join("")}
+  <td id="per-${i}" style="white-space:nowrap;font-size:12.5px">${perHTML(i)}</td><td><input data-sf="barcode" data-i="${i}" value="${esc(s.barcode||"")}" placeholder="scan / ketik" autocomplete="off" style="width:150px" aria-label="Barcode ${esc(s.nama)}"></td><td>${i>0?`<button class="x" data-act="rmsat" data-i="${i}" aria-label="Hapus satuan">×</button>`:""}</td></tr>`).join("")}
   </tbody></table></div>
   <div><button class="btn sm" data-act="addsatrow">+ Satuan besar</button></div>
   <div><h2>Harga grosir bertingkat</h2><p class="hint">Harga per ${esc(d)} turun mulai jumlah tertentu, berlaku untuk seluruh jumlah. Kosongkan bila tidak dipakai.</p></div>
@@ -2017,6 +2017,9 @@ function openNota(id,force){
   if(!owner())CART.admin.items.forEach(i=>{});
   S.view="pos";S.posTab="jual";S.modal=null;render();
 }
+function bcStr(p){return p.satuan.map(s=>s.barcode||"").join(" ");}
+function cariBarcode(kode){const k=String(kode||"").replace(/\s+/g,"");if(!k)return null;for(const p of S.produk){const si=p.satuan.findIndex(s=>s.barcode===k);if(si>=0)return{p,si};}return null;}
+function scanMasuk(kode){const f=cariBarcode(kode);if(!f)return false;const{p,si}=f;if(p.aktif===false){toast(p.nama+" nonaktif, belum bisa dijual.");return true;}if(!(p.satuan[si].jual>0)){toast("Harga "+p.nama+" ("+p.satuan[si].nama+") belum diisi.");return true;}addItem(p,si);S.q="";const q=$("#posq");if(q)q.value="";const g=$("#grid");if(g)g.innerHTML=gridHTML();refreshCart();toast("+1 "+p.satuan[si].nama.toLowerCase()+" "+p.nama);setTimeout(()=>$("#posq")?.focus(),0);return true;}
 function addItem(p,si){const c=cart();const s=p.satuan[si];const ex=c.items.find(i=>i.pid===p.id&&i.sat===s.nama&&i.isi===s.isi);
   if(ex)ex.qty+=1;else c.items.push({pid:p.id,nama:p.nama,kategori:p.kategori,sat:s.nama,isi:s.isi,qty:1,normal:s.jual,disk:0,diskSaran:0,diskManual:false,beli:s.beli||0,pesan:c.fromAntrian?null:undefined});
   reprice(c);}
@@ -2096,9 +2099,10 @@ const fotoImg=(p,cls)=>p&&p.foto?`<img class="${cls}" src="${esc(p.foto)}" alt="
 async function saveProd(){
   const e=S.edit;const nama=e.nama.trim();if(!nama){toast("Isi nama barang.");return;}
   const dup=S.produk.find(p=>p.id!==e.id&&norm(p.nama)===norm(nama));if(dup){toast("Nama sudah dipakai: "+dup.nama+" ("+dup.sku+").");return;}
-  const sat=e.satuan.map((s,i)=>({nama:s.nama,isi:isiOf(e,i),rel:i?money(s.rel):1,beli:money(s.beli),jual:money(s.jual)}));
+  const sat=e.satuan.map((s,i)=>{const o={nama:s.nama,isi:isiOf(e,i),rel:i?money(s.rel):1,beli:money(s.beli),jual:money(s.jual)};const bc=String(s.barcode||"").replace(/\s+/g,"");if(bc)o.barcode=bc;return o;});
+  {const bcs=sat.map(s=>s.barcode).filter(Boolean);if(new Set(bcs).size!==bcs.length){toast("Ada barcode yang sama dua kali.");return;}for(const bc of bcs){const k=cariBarcode(bc);if(k&&k.p.id!==e.id){toast("Barcode "+bc+" sudah dipakai "+k.p.nama+" ("+k.p.satuan[k.si].nama+").");return;}}}
   if(sat.some((s,i)=>i>0&&s.rel<2)){toast("Isi satuan besar harus lebih dari 1.");return;}
-  if(sat.some(s=>!s.jual)){toast("Setiap satuan perlu harga jual.");return;}
+  if(e.aktif!==false&&sat.some(s=>!s.jual)){toast("Setiap satuan perlu harga jual. Kalau harga belum ada, matikan \"Aktif dijual\" dulu.");return;}
   if(new Set(sat.map(s=>s.nama+"|"+s.isi)).size!==sat.length){toast("Ada satuan yang sama dua kali.");return;}
   const tingkat=e.tingkat.map(t=>({min:qn(t.min),harga:money(t.harga)})).filter(t=>t.min>0&&t.harga>0).sort((a,b)=>a.min-b.min);
   if(e.kode){const k=S.produk.find(p=>p.id!==e.id&&p.kode&&norm(p.kode)===norm(e.kode));if(k){toast("Kode cepat sudah dipakai "+k.nama+".");return;}}
@@ -2374,7 +2378,12 @@ document.addEventListener("change",e=>{const t=e.target,d=t.dataset;
   if(d.lappm){S.lap.month=t.value;S.ppOpen=null;render();return;}if(d.lappf){S.lap.from=t.value;render();return;}if(d.lappt){S.lap.to=t.value;render();return;}
 });
 document.addEventListener("submit",e=>{if(e.target.dataset.login){e.preventDefault();cobaMasuk();}});
-document.addEventListener("keydown",e=>{if(e.key==="Escape"&&S.modal&&!S.printing){S.modal=null;renderModal();}if(e.key==="Enter"&&e.target.dataset.posq){const t=document.querySelector("#grid .kartu-barang");if(t){e.preventDefault();t.click();}}if(e.key==="Enter"&&e.target.dataset.atur){e.preventDefault();aturSimpan();}});
+/* Scanner barcode (USB/Bluetooth) bekerja seperti keyboard: angka cepat lalu Enter. Ditangkap di Kasir walau kolom cari tidak sedang aktif. */
+const SCAN={buf:"",t:0};
+document.addEventListener("keydown",e=>{if(S.view!=="pos"||S.modal)return;const el=document.activeElement;if(el&&/^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName))return;const n=Date.now();if(n-SCAN.t>80)SCAN.buf="";SCAN.t=n;
+  if(e.key==="Enter"){if(SCAN.buf.length>=4){e.preventDefault();const k=SCAN.buf;SCAN.buf="";if(!scanMasuk(k))toast("Barcode "+k+" belum terdaftar. Pemilik bisa menambahkannya di Back Office → Produk.");}return;}
+  if(e.key.length===1&&!e.ctrlKey&&!e.metaKey&&!e.altKey)SCAN.buf+=e.key;},true);
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&S.modal&&!S.printing){S.modal=null;renderModal();}if(e.key==="Enter"&&e.target.dataset.posq){if(scanMasuk(e.target.value)){e.preventDefault();return;}if(/^\d{6,}$/.test(e.target.value.trim())&&!document.querySelector("#grid .kartu-barang")){e.preventDefault();toast("Barcode "+e.target.value.trim()+" belum terdaftar.");e.target.select();return;}const t=document.querySelector("#grid .kartu-barang");if(t){e.preventDefault();t.click();}}if(e.key==="Enter"&&e.target.dataset.sf==="barcode"){e.preventDefault();e.target.blur();}if(e.key==="Enter"&&e.target.dataset.atur){e.preventDefault();aturSimpan();}});
 
 /* ================= mulai ================= */
 let SB=null;
