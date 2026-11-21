@@ -1229,6 +1229,10 @@ button.kk-mini__item{cursor:pointer}button.kk-mini__item:hover{border-color:var(
 .bc-chip{display:inline-flex;align-items:center;gap:4px;height:32px;padding:0 4px 0 10px;border-radius:999px;background:var(--biru-muda);border:1px solid var(--biru-garis);color:var(--biru-tua);font-family:"IBM Plex Mono",monospace;font-size:13px}
 .bc-chip button{border:0;background:none;color:inherit;font-size:16px;line-height:1;width:24px;height:24px;border-radius:999px;cursor:pointer}
 .bc-chip button:hover{background:rgba(0,0,0,.08)}
+.alat__cari--scan input{padding-right:48px !important}
+.alat__scan{position:absolute;right:4px;top:50%;transform:translateY(-50%);width:38px;height:36px;border:0;border-radius:8px;background:transparent;color:var(--biru-tua);display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
+.alat__scan:hover,.alat__scan:active{background:var(--biru-muda)}
+.alat__scan svg{width:22px;height:22px}
 </style>
 <style>html,body{margin:0;height:100%}</style>
 </head>
@@ -1780,7 +1784,7 @@ function alat(o){if(!o.cari&&!(o.filter||[]).some(f=>f.html))return `<div class=
   const tombol=adaPanel?`<button class="alat__toggle ${aktif.length?"alat__toggle--aktif":""}" data-act="alat" data-k="${o.k}" aria-expanded="${buka}" title="${buka?"Sembunyikan":"Tampilkan"} periode &amp; filter">${o.cari?IKON_FILTER:IKON_KAL}<span class="alat__teks">${o.cari?(o.periode?"Periode &amp; filter":"Filter"):esc(per)}</span>${aktif.length?`<span class="alat__badge">${aktif.length}</span>`:""}<span class="alat__panah" aria-hidden="true">▾</span></button>`:"";
   const ring=[o.cari&&per?per:null,...aktif.map(f=>f.teks)].filter(Boolean);
   return `<div class="alat ${buka?"alat--buka":""} ${o.cari?"":"alat--tanpa-cari"}">
-  <div class="alat__baris">${o.cari?`<label class="alat__cari">${IKON_CARI}${o.cari}</label>`:""}${tombol}${o.aksi?`<div class="alat__aksi">${o.aksi}</div>`:""}</div>
+  <div class="alat__baris">${o.cari?`<label class="alat__cari ${o.scan?"alat__cari--scan":""}">${IKON_CARI}${o.cari}${o.scan?`<button type="button" class="alat__scan" data-act="kambuka" data-target="${o.scan}" title="Scan barcode pakai kamera" aria-label="Scan barcode pakai kamera">${IKON_SCAN}</button>`:""}</label>`:""}${tombol}${o.aksi?`<div class="alat__aksi">${o.aksi}</div>`:""}</div>
   ${buka&&adaPanel?`<div class="alat__panel">${o.periode?`<div class="alat__grup"><span class="alat__label">Periode</span>${periodCtl(o.periode.o,o.periode.act)}</div>`:""}${F.filter(f=>f.html).map(f=>`<div class="alat__grup">${f.label?`<span class="alat__label">${f.label}</span>`:""}${f.html}</div>`).join("")}${aktif.length?`<button class="link alat__reset" data-act="alatreset" data-k="${o.k}">Hapus filter</button>`:""}</div>`
    :ring.length?`<div class="alat__ringkas">${ring.map(t=>`<button class="alat__chip" data-act="alat" data-k="${o.k}">${esc(t)}</button>`).join("")}${aktif.length?`<button class="link" data-act="alatreset" data-k="${o.k}">Hapus filter</button>`:""}</div>`:""}
   </div>`;}
@@ -1989,7 +1993,7 @@ function vProduk(){
   const kats=[...new Set(S.produk.map(p=>p.kategori))].sort();
   const nF=S.produk.filter(p=>!p.foto&&(!S.prodK||p.kategori===S.prodK)).length,nB=S.produk.filter(p=>!bcList(p).length&&(!S.prodK||p.kategori===S.prodK)).length;
   const FT={laku:"Terjual di periode",tidak:"Tidak terjual",tipis:"Untung tipis"};
-  return `${alat({k:"produk",cari:`<input type="search" id="pq" data-prodq="1" placeholder="Cari nama, merek, SKU, atau scan barcode…" value="${esc(S.prodQ)}" autocomplete="off">`,periode:{o:S.lap,act:"lapp"},
+  return `${alat({k:"produk",scan:"prodcari",cari:`<input type="search" id="pq" data-prodq="1" placeholder="Cari nama, merek, SKU, atau scan barcode…" value="${esc(S.prodQ)}" autocomplete="off">`,periode:{o:S.lap,act:"lapp"},
     filter:[{label:"Kategori",html:`<select data-prodk="1" aria-label="Kategori"><option value="">Semua kategori</option>${kats.map(k=>`<option ${k===S.prodK?"selected":""}>${esc(k)}</option>`).join("")}</select>`,aktif:!!S.prodK,teks:S.prodK},
       {label:"Tampilkan",html:`<div class="alat__centang"><label class="centang"><input type="checkbox" data-tanpafoto="1" ${S.prodTanpaFoto?"checked":""}> Belum ada foto (${nF})</label><label class="centang"><input type="checkbox" data-tanpabc="1" ${S.prodTanpaBc?"checked":""}> Belum ada barcode (${nB})</label></div>`,aktif:S.prodTanpaFoto||S.prodTanpaBc,teks:[S.prodTanpaFoto?"Belum ada foto":"",S.prodTanpaBc?"Belum ada barcode":""].filter(Boolean).join(" · ")},
       {html:"",aktif:F!=="semua",teks:FT[F]||""}],
@@ -2149,6 +2153,7 @@ function mKamera(m){return `<div class="dialog__kepala"><h2>Scan barcode</h2><bu
 function scanKe(target,kode){
   if(target==="pos"){if(!scanMasuk(kode))bcBelumAda(kode);return;}
   if(target==="prod"){scanProduk(kode);return;}
+  if(target==="prodcari"){cariProdukBc(kode);return;}
   if(target==="isi"){if(KAM.isi){S.modal=KAM.isi;KAM.isi=null;bcIsiSimpan(kode);}return;}
   if(target==="form"){pfTambahBc(kode);return;}
   if(target&&target.startsWith("form:")){const i=+target.slice(5);if(!S.edit)return;const k=cariBarcode(kode);if(k&&k.p.id!==S.edit.id){toast("Barcode "+kode+" sudah dipakai "+k.p.nama+" ("+k.p.satuan[k.si].nama+").");return;}S.edit.satuan[i].barcode=kode;render();toast("Barcode "+S.edit.satuan[i].nama.toLowerCase()+": "+kode);return;}}
@@ -2157,7 +2162,7 @@ function scanProduk(kode){const f=cariBarcode(kode);if(f){S.view="produk";S.prod
 /* Daftar Produk: barcode hasil scan/ketik dipakai sebagai kata cari. Terdaftar → produknya tampil di daftar. Belum → tawarkan pasang/buat baru. */
 function cariProdukBc(kode){kode=String(kode||"").replace(/\s+/g,"");if(!kode)return;const f=cariBarcode(kode);
   if(!f){S.prodQ="";const q=$("#pq");if(q)q.value="";const l=$("#plist");if(l)l.innerHTML=prodList();S.modal={t:"bcbaru",kode,q:"",dari:"prod"};renderModal();$("#bc-q")?.focus();return;}
-  S.prodQ=kode;S.prodK="";S.prodTanpaFoto=false;S.prodTanpaBc=false;S.lap.prodF="semua";render();const q=$("#pq");if(q){q.focus();q.select();}toast("Ditemukan: "+f.p.nama);}
+  S.prodQ=kode;S.prodK="";S.prodTanpaFoto=false;S.prodTanpaBc=false;S.lap.prodF="semua";render();const q=$("#pq");if(q&&!layarSentuh()){q.focus();q.select();}toast("Ditemukan: "+f.p.nama);}
 function produkBaru(kode){const st=setting();const kat=S.prodK&&st.kategori.some(k=>k.nama===S.prodK)?S.prodK:st.kategori[0].nama;
   S.view="produk";S.edit={id:null,sku:"",nama:"",kategori:kat,kode:"",satuan:[{nama:st.satuan.includes("Pcs")?"Pcs":st.satuan[0],rel:1,beli:"",jual:"",}],barcodes:kode?[kode]:[],tingkat:[],aktif:true,baruScan:!!kode};render();window.scrollTo(0,0);setTimeout(()=>$("#pf-nama")?.focus(),0);
   if(kode)toast("Barcode "+kode+" belum terdaftar. Isi nama barangnya.");}
